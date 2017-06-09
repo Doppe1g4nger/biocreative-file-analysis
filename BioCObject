@@ -30,7 +30,6 @@ class BioCObject:
                 self.infon_types.add(infon.attrib["key"])
                 if infon.attrib["key"] == "type":
                     self.section_types.add(infon.text)
-                    print infon.text
             # Iterate over fully read in documents
             if element.tag == "document":
                 # Keep track of document count
@@ -72,7 +71,7 @@ class BioCObject:
             # file.write("Average abstract length: "
             #            + str(total_abstract_length / doc_count) + "\n")
 
-    #returns a dictionary with {(PMID: Abstract)}
+    # Returns a dictionary with {(PMID: Abstract), ...}
     def collect_abstracts(self):
         currentID = ""
         abstracts_dict = {}
@@ -92,24 +91,40 @@ class BioCObject:
 
         return abstracts_dict
 
+    # Returns a dictionary with {(PMID: Title), ...}
     def collect_titles(self):
-        currentID = ""
+        current_id = ""
         title_dict = {}
         collect_passage = False
 
         for _, element in self.tree:
 
             if element.tag == "id":
-                currentID = element.text
+                current_id = element.text
 
             elif element.text == "TitlePassage":
                 collect_passage = True
 
             elif collect_passage and element.tag == "text":
-                title_dict[currentID] = element.text
+                title_dict[current_id] = element.text
                 collect_passage = False
 
         return title_dict
 
+    # Returns a dictionary with {(PMID: [infon1, infon2, infon3, ...]), ...}
+    def collect_infons(self):
+        current_id = ""
+        infon_dict = {}
 
+        for _, element in self.tree:
 
+            if element.tag == "id":
+                current_id = element.text
+
+            elif element.tag == "infon":
+                try:
+                    infon_dict[current_id].append(element.text)
+                except KeyError:
+                    infon_dict[current_id] = [element.text]
+
+        return infon_dict
