@@ -1,5 +1,4 @@
 import lxml.etree as etree
-import FullTextTools
 
 
 class BioCObject:
