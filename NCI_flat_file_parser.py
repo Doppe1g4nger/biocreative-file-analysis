@@ -20,3 +20,4 @@ if __name__ == "__main__":
         #     for concept_type in sorted(type_set):
         #         types.write(concept_type + "\n")
             comprehensive_concept_dict[concept.concept_name] = concept.synonyms
+            print("test")
