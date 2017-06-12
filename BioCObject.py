@@ -224,7 +224,7 @@ class BioCObject:
 
         return dict
 
-    def full_documents_text(self, list_of_relevant_tags, include_keywords):
+    def full_docs_parser(self, list_of_relevant_tags, include_keywords):
         current_id = ""
         dict = {}
         collect_text = False
