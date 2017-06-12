@@ -21,7 +21,7 @@ class BioCObject:
         self.tree = etree.iterparse(self.filename, events=("end", ))
 
     # Iteratively parse tree, one element at a time
-    def run_analytics(self, ouput_file="Analytics.txt"):
+    def run_analytics(self, output_file="Analytics.txt"):
         for _, element in self.tree:
             # Keep track of different XML tag types
             self.tag_types.add(element.tag)
@@ -52,7 +52,7 @@ class BioCObject:
                 element.clear()
 
         # Write relevant data to file
-        with open(ouput_file, "w") as file:
+        with open(output_file, "w") as file:
             file.write("Number of documents in file:\n" + str(self.doc_count) + "\n\n")
             file.write("Sorted list of available infon types:\n")
             for inf_type in sorted(self.infon_types):
