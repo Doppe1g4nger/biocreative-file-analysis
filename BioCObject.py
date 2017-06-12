@@ -1,4 +1,5 @@
 import lxml.etree as etree
+import FullTextTools
 
 
 class BioCObject:
@@ -21,7 +22,7 @@ class BioCObject:
         self.tree = etree.iterparse(self.filename, events=("end", ))
 
     # Iteratively parse tree, one element at a time
-    def run_analytics(self, output_file="Analytics.txt"):
+    def run_analytics(self, ouput_file="Analytics.txt"):
         for _, element in self.tree:
             # Keep track of different XML tag types
             self.tag_types.add(element.tag)
@@ -52,7 +53,7 @@ class BioCObject:
                 element.clear()
 
         # Write relevant data to file
-        with open(output_file, "w") as file:
+        with open(ouput_file, "w") as file:
             file.write("Number of documents in file:\n" + str(self.doc_count) + "\n\n")
             file.write("Sorted list of available infon types:\n")
             for inf_type in sorted(self.infon_types):
@@ -72,9 +73,9 @@ class BioCObject:
             #            + str(total_abstract_length / doc_count) + "\n")
 
     # Returns a dictionary with {(PMID: Abstract), ...}
-    def collect_abstracts(self):
+    def collect_all(self, tag_text):
         currentID = ""
-        abstracts_dict = {}
+        dict = {}
         collect_passage = False
 
         for _, element in self.tree:
@@ -82,17 +83,55 @@ class BioCObject:
             if element.tag == "id":
                 currentID = element.text
 
-            elif element.text == "AbstractPassage":
+            elif element.text == tag_text:
                 collect_passage = True
 
             elif collect_passage and element.tag == "text":
-                abstracts_dict[currentID] = element.text
+                dict[currentID] = element.text
                 collect_passage = False
+            element.clear()
 
-        return abstracts_dict
+        return dict
+
+    def collect_by_index(self, tag_text, document_index):
+        correct_index = False
+        correct_passage = False
+        doc_count = -1
+
+        for _, element in self.tree:
+
+            if not correct_index and element.tag == "document":
+                doc_count += 1
+
+                if doc_count == document_index:
+                    correct_index = True
+
+            elif correct_index and element.text == tag_text:
+                correct_passage = True
+
+            elif correct_passage and correct_index and element.tag == "text":
+                return element.text
+            element.clear()
+
+    def collect_by_id(self, tag_text, PMID):
+        correct_index = False
+        correct_passage = False
+
+        for _, element in self.tree:
+
+            if not correct_index and element.tag == "id":
+                if element.text == str(PMID):
+                    correct_index = True
+
+            elif correct_index and element.text == tag_text:
+                correct_passage = True
+
+            elif correct_passage and correct_index and element.tag == "text":
+                return element.text
+            element.clear()
 
     # Returns a dictionary with {(PMID: Title), ...}
-    def collect_titles(self):
+    def titles(self):
         current_id = ""
         title_dict = {}
         collect_passage = False
@@ -108,11 +147,32 @@ class BioCObject:
             elif collect_passage and element.tag == "text":
                 title_dict[current_id] = element.text
                 collect_passage = False
+            element.clear()
 
         return title_dict
 
+    def abstracts(self):
+        current_id = ""
+        dict = {}
+        collect_passage = False
+
+        for _, element in self.tree:
+
+            if element.tag == "id" :
+                current_id = element.text
+
+            elif element.text == "AbstractPassage" or element.text == "abstract":
+                collect_passage = True
+
+            elif collect_passage and element.tag == "text":
+                dict[current_id] = element.text
+                collect_passage = False
+            element.clear()
+
+        return dict
+
     # Returns a dictionary with {(PMID: [infon1, infon2, infon3, ...]), ...}
-    def collect_infons(self):
+    def infons(self):
         current_id = ""
         infon_dict = {}
 
@@ -126,5 +186,85 @@ class BioCObject:
                     infon_dict[current_id].append(element.text)
                 except KeyError:
                     infon_dict[current_id] = [element.text]
+            element.clear()
 
         return infon_dict
+
+    def number_of_documents(self):
+        count = 0
+
+        for _, element in self.tree:
+            if(element.tag == "document"):
+                count += 1
+            element.clear()
+
+        return count
+
+    def paragraphs_text(self):
+        current_id = ""
+        dict = {}
+        collect_text = False
+        relevant_tags = ["abstract", "fig_caption", "fig_table_caption", ];
+
+        for _, element in self.tree:
+
+            if not collect_text and element.tag == "id":
+                current_id = element.text[3:]
+
+            elif not collect_text and element.text == "paragraph":
+                collect_text = True;
+
+            elif collect_text and element.tag == "text":
+                try:
+                    dict[current_id] += element.text
+                except KeyError:
+                    dict[current_id] = element.text
+                collect_text = False;
+            element.clear()
+
+        return dict
+
+    def full_documents_text(self, list_of_relevant_tags, include_keywords):
+        current_id = ""
+        dict = {}
+        collect_text = False
+
+        for _, element in self.tree:
+
+            if not collect_text and element.tag == "id":
+                current_id = element.text[3:]
+
+            elif not collect_text and element.text in list_of_relevant_tags:
+                collect_text = True;
+
+            elif collect_text and element.tag == "text":
+                try:
+                    dict[current_id] += element.text
+                except KeyError:
+                    dict[current_id] = element.text
+                collect_text = False;
+            elif include_keywords and element.attrib == {'key': 'kwd'}:
+                try:
+                    dict[current_id] += element.text
+                except KeyError:
+                    dict[current_id] = element.text
+
+            element.clear()
+
+        return dict
+
+    def keywords(self):
+        current_id = ""
+        dict = {}
+
+        for _, element in self.tree:
+
+            if element.tag == "id":
+                current_id = element.text[3:]
+
+            elif element.attrib == {'key': 'kwd'}:
+                dict[current_id] = element.text
+
+            element.clear()
+
+        return dict
