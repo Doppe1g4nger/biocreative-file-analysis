@@ -87,7 +87,7 @@ class BioCObject:
 
             elif collect_passage and element.tag == "text":
                 abstracts_dict[currentID] = element.text
-                collect_poassage = False
+                collect_passage = False
 
         return abstracts_dict
 
