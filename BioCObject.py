@@ -20,6 +20,10 @@ class BioCObject:
         # Create iterative parser over XML file, fire an event at the end of each tag
         self.tree = etree.iterparse(self.filename, events=("end", ))
 
+    # resets etree after function completion to allow for several consecutive functions
+    def rebuild(self):
+        self.tree = etree.iterparse(self.filename, events=("end",))
+
     # Prints a data analytics sheet to output_file
     # Iterative, so only a small amount of RAM used
     def run_analytics(self, ouput_file="Analytics.txt"):
@@ -71,6 +75,7 @@ class BioCObject:
             #            + str(total_abstract_title_length / doc_count) + "\n")
             # file.write("Average abstract length: "
             #            + str(total_abstract_length / doc_count) + "\n")
+        self.rebuild()
 
     # Returns a dictionary with {(PMID: QUANTITY), ...}
     # tag_text  argument represents the desired keyword for whatever QUANTITY you need
@@ -93,7 +98,7 @@ class BioCObject:
                 dict[currentID] = element.text
                 collect_passage = False
             element.clear()
-
+        self.rebuild()
         return dict
 
     # Returns a specific quantity based on tag_text (the desired type) and document_index, where it is stored.
@@ -102,6 +107,7 @@ class BioCObject:
         correct_index = False
         correct_passage = False
         doc_count = -1
+        value = ""
 
         for _, element in self.tree:
 
@@ -115,8 +121,11 @@ class BioCObject:
                 correct_passage = True
 
             elif correct_passage and correct_index and element.tag == "text":
-                return element.text
+                value = element.text
+                break
             element.clear()
+        self.rebuild()
+        return value
 
     # Returns a specific quantity based on tag_text (the desired type) and PMID
     # To return the Abstract of PMID 18183754, for example, call collect_by_index("AbstractPassage", 18183754)
@@ -124,6 +133,7 @@ class BioCObject:
     def collect_by_id(self, tag_text, PMID):
         correct_index = False
         correct_passage = False
+        value = ""
 
         for _, element in self.tree:
 
@@ -135,8 +145,11 @@ class BioCObject:
                 correct_passage = True
 
             elif correct_passage and correct_index and element.tag == "text":
-                return element.text
+                value = element.text
+                break
             element.clear()
+        self.rebuild()
+        return value
 
     # Returns a dictionary with {(PMID: Title), ...}
     # This is a title specific shortcut of the collect_all function
@@ -159,6 +172,7 @@ class BioCObject:
                 collect_passage = False
             element.clear()
 
+        self.rebuild()
         return title_dict
 
     # Returns a dictionary with {(PMID: Abstract), ...}
@@ -182,6 +196,7 @@ class BioCObject:
                 collect_passage = False
             element.clear()
 
+        self.rebuild()
         return dict
 
     # Returns a dictionary with {(PMID: [infon1, infon2, infon3, ...]), ...}
@@ -202,9 +217,10 @@ class BioCObject:
                     infon_dict[current_id] = [element.text]
             element.clear()
 
+        self.rebuild()
         return infon_dict
-    
-    # Counts total number of documents using <document> tags 
+
+    # Counts total number of documents using <document> tags
     # Testes with both abstracts and fulltext
     def number_of_documents(self):
         count = 0
@@ -215,10 +231,11 @@ class BioCObject:
 
             element.clear()
 
+        self.rebuild()
         return count
 
     # returns a dictionary of {(PMID: ParagraphText), ...}
-    # Where ParagraphText text represents all paragraphs associated with that PMID concatenated together 
+    # Where ParagraphText text represents all paragraphs associated with that PMID concatenated together
     # designed for fulltext
     def paragraphs_text(self):
         current_id = ""
@@ -241,6 +258,7 @@ class BioCObject:
                 collect_text = False;
             element.clear()
 
+        self.rebuild()
         return dict
 
     # accepts a list of desired tags to include (list_of_relevant_tags),
@@ -275,10 +293,11 @@ class BioCObject:
 
             element.clear()
 
+        self.rebuild()
         return dict
 
-    # returns dictionary of {(PMID: keywords), ...} 
-    # where keywords is the group of text associated with the "kwd" infon tag 
+    # returns dictionary of {(PMID: keywords), ...}
+    # where keywords is the group of text associated with the "kwd" infon tag
     # designed for fulltext
     def keywords(self):
         current_id = ""
@@ -294,4 +313,6 @@ class BioCObject:
 
             element.clear()
 
+        self.rebuild()
         return dict
+
