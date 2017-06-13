@@ -9,12 +9,12 @@ class NCIConcept:
             prop_dict = args[0]
             self.code = prop_dict["code"]
             self.concept_name = prop_dict["concept_name"]
-            self.parents = set(prop_dict["parents"].split("|"))
-            self.synonyms = set(prop_dict["synonyms"].split("|"))
+            self.parents = prop_dict["parents"].split("|")
+            self.synonyms = prop_dict["synonyms"].split("|")
             self.definition = prop_dict["definition"]
-            self.display_name = set(prop_dict["display_name"].split("|"))
-            self.concept_status = set(prop_dict["concept_status"].split("|"))
-            self.semantic_type = set(prop_dict["semantic_type"].split("|"))
+            self.display_name = prop_dict["display_name"].split("|")
+            self.concept_status = prop_dict["concept_status"].split("|")
+            self.semantic_type = prop_dict["semantic_type"].split("|")
         # Case for manual entry of all 8 arguments
         elif len(args) == 8:
             self.code = args[0]
@@ -29,9 +29,9 @@ class NCIConcept:
         elif len(args) == 0:
             self.code = kwargs.get("code", "")
             self.concept_name = kwargs.get("concept_name", "")
-            self.parents = kwargs.get("parents", set())
-            self.synonyms = kwargs.get("synonyms", set())
+            self.parents = kwargs.get("parents", [])
+            self.synonyms = kwargs.get("synonyms", [])
             self.definition = kwargs.get("definition", "")
-            self.display_name = kwargs.get("display_name", set())
-            self.concept_status = kwargs.get("concept_status", set())
-            self.semantic_type = kwargs.get("semantic_type", set())
+            self.display_name = kwargs.get("display_name", [])
+            self.concept_status = kwargs.get("concept_status", [])
+            self.semantic_type = kwargs.get("semantic_type", [])
