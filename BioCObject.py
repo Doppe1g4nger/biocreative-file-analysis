@@ -14,19 +14,19 @@ class BioCObject:
     doc_count = 0
     tree = None
 
-    # Constructor; takes a bioc formatted xml path
     def __init__(self, filename):
+        """Constructor; takes a bioc formatted xml path"""
         self.filename = filename
         # Create iterative parser over XML file, fire an event at the end of each tag
         self.tree = etree.iterparse(self.filename, events=("end", ))
 
-    # resets etree after function completion to allow for several consecutive functions
     def rebuild(self):
+        """resets etree after function completion to allow for several consecutive functions"""
         self.tree = etree.iterparse(self.filename, events=("end",))
 
-    # Prints a data analytics sheet to output_file
-    # Iterative, so only a small amount of RAM used
-    def run_analytics(self, ouput_file="Analytics.txt"):
+    def print_analytics(self, ouput_file="Analytics.txt"):
+        """Prints a data analytics sheet to output_file
+        Iterative, so only a small amount of RAM used"""
         for _, element in self.tree:
             # Keep track of different XML tag types
             self.tag_types.add(element.tag)
@@ -77,11 +77,11 @@ class BioCObject:
             #            + str(total_abstract_length / doc_count) + "\n")
         self.rebuild()
 
-    # Returns a dictionary with {(PMID: QUANTITY), ...}
-    # tag_text  argument represents the desired keyword for whatever QUANTITY you need
-    # examples are, "AbstractPassage", "Title Passage", etc
-    # Primary use with abstracts_collection
     def collect_all(self, tag_text):
+        """ Returns a dictionary with {(PMID: QUANTITY), ...}
+         tag_text  argument represents the desired keyword for whatever QUANTITY you need
+         examples are, "AbstractPassage", "Title Passage", etc
+         Primary use with abstracts_collection"""
         currentID = ""
         dict = {}
         collect_passage = False
@@ -101,9 +101,9 @@ class BioCObject:
         self.rebuild()
         return dict
 
-    # Returns a specific quantity based on tag_text (the desired type) and document_index, where it is stored.
-    # To return the 140th Abstract, for example, call collect_by_index("AbstractPassage", 140)
     def collect_by_index(self, tag_text, document_index):
+        """ Returns a specific quantity based on tag_text (the desired type) and document_index, where it is stored.
+        To return the 140th Abstract, for example, call collect_by_index("AbstractPassage", 140)"""
         correct_index = False
         correct_passage = False
         doc_count = -1
@@ -127,10 +127,10 @@ class BioCObject:
         self.rebuild()
         return value
 
-    # Returns a specific quantity based on tag_text (the desired type) and PMID
-    # To return the Abstract of PMID 18183754, for example, call collect_by_index("AbstractPassage", 18183754)
-    # PMID can be entered with or without quotes
     def collect_by_id(self, tag_text, PMID):
+        """ Returns a specific quantity based on tag_text (the desired type) and PMID
+         To return the Abstract of PMID 18183754, for example, call collect_by_index("AbstractPassage", 18183754)
+         PMID can be entered with or without quotes"""
         correct_index = False
         correct_passage = False
         value = ""
@@ -151,10 +151,10 @@ class BioCObject:
         self.rebuild()
         return value
 
-    # Returns a dictionary with {(PMID: Title), ...}
-    # This is a title specific shortcut of the collect_all function
-    # primarily for abstacts_collection
     def titles(self):
+        """ Returns a dictionary with {(PMID: Title), ...}
+        This is a title specific shortcut of the collect_all function
+        primarily for abstacts_collection"""
         current_id = ""
         title_dict = {}
         collect_passage = False
@@ -175,10 +175,10 @@ class BioCObject:
         self.rebuild()
         return title_dict
 
-    # Returns a dictionary with {(PMID: Abstract), ...}
-    # This is an abstract specific shortcut of the collect_all function
-    # primarily for abstacts_collection
     def abstracts(self):
+        """ Returns a dictionary with {(PMID: Abstract), ...}
+        This is an abstract specific shortcut of the collect_all function
+        primarily for abstacts_collection"""
         current_id = ""
         dict = {}
         collect_passage = False
@@ -199,9 +199,9 @@ class BioCObject:
         self.rebuild()
         return dict
 
-    # Returns a dictionary with {(PMID: [infon1, infon2, infon3, ...]), ...}
-    # Designed and testes with abstacts_collection
     def infons(self):
+        """Returns a dictionary with {(PMID: [infon1, infon2, infon3, ...]), ...}
+        Designed and testes with abstacts_collection"""
         current_id = ""
         infon_dict = {}
 
@@ -220,9 +220,9 @@ class BioCObject:
         self.rebuild()
         return infon_dict
 
-    # Counts total number of documents using <document> tags
-    # Testes with both abstracts and fulltext
     def number_of_documents(self):
+        """Counts total number of documents using <document> tags
+           Tested with both abstracts and fulltext"""
         count = 0
 
         for _, element in self.tree:
@@ -234,10 +234,10 @@ class BioCObject:
         self.rebuild()
         return count
 
-    # returns a dictionary of {(PMID: ParagraphText), ...}
-    # Where ParagraphText text represents all paragraphs associated with that PMID concatenated together
-    # designed for fulltext
     def paragraphs_text(self):
+        """returns a dictionary of {(PMID: ParagraphText), ...}
+           Where ParagraphText text represents all paragraphs associated with that PMID concatenated together
+           designed for fulltext"""
         current_id = ""
         dict = {}
         collect_text = False
@@ -261,12 +261,12 @@ class BioCObject:
         self.rebuild()
         return dict
 
-    # accepts a list of desired tags to include (list_of_relevant_tags),
-    # and a boolean value or whether or not to include the keywords text for each document
-    # returns a dictionary of {(PMID: BagOfText), ...}
-    # Where BagOfText text represents all texts from all desires and keywords iff include_keywords = True
-    # designed for fulltext
     def full_docs_parser(self, list_of_relevant_tags, include_keywords):
+        """accepts a list of desired tags to include (list_of_relevant_tags),
+         and a boolean value or whether or not to include the keywords text for each document
+         returns a dictionary of {(PMID: BagOfText), ...}
+         Where BagOfText text represents all texts from all desires and keywords iff include_keywords = True
+         designed for fulltext"""
         current_id = ""
         dict = {}
         collect_text = False
@@ -296,10 +296,10 @@ class BioCObject:
         self.rebuild()
         return dict
 
-    # returns dictionary of {(PMID: keywords), ...}
-    # where keywords is the group of text associated with the "kwd" infon tag
-    # designed for fulltext
     def keywords(self):
+        """returns dictionary of {(PMID: keywords), ...}
+        where keywords is the group of text associated with the "kwd" infon tag
+        designed for fulltext"""
         current_id = ""
         dict = {}
 
