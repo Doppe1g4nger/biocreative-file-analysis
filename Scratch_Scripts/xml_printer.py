@@ -1,3 +1,6 @@
+"""
+Simple script used to write first fultext document to a file to view its structure
+"""
 import lxml.etree as etree
 
 if __name__ == "__main__":

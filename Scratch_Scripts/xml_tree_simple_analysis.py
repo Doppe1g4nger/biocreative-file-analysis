@@ -1,3 +1,7 @@
+"""
+File used to run analysis on fulltext and abstracts, counted num docs, infon types, etc
+BioCObject is a more flexible expansion based off this file
+"""
 import lxml.etree as etree
 
 if __name__ == "__main__":
