@@ -24,7 +24,7 @@ class BioCObject:
         """resets etree after function completion to allow for several consecutive functions"""
         self.tree = etree.iterparse(self.filename, events=("end",))
 
-    def print_analytics(self, ouput_file="Analytics.txt"):
+    def print_analytics(self, output_file="Analytics.txt"):
         """Prints a data analytics sheet to output_file
         Iterative, so only a small amount of RAM used"""
         for _, element in self.tree:
@@ -57,7 +57,7 @@ class BioCObject:
                 element.clear()
 
         # Write relevant data to file
-        with open(ouput_file, "w") as file:
+        with open(output_file, "w") as file:
             file.write("Number of documents in file:\n" + str(self.doc_count) + "\n\n")
             file.write("Sorted list of available infon types:\n")
             for inf_type in sorted(self.infon_types):
