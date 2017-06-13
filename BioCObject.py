@@ -20,7 +20,8 @@ class BioCObject:
         # Create iterative parser over XML file, fire an event at the end of each tag
         self.tree = etree.iterparse(self.filename, events=("end", ))
 
-    # Iteratively parse tree, one element at a time
+    # Prints a data analytics sheet to output_file
+    # Iterative, so only a small amount of RAM used
     def run_analytics(self, ouput_file="Analytics.txt"):
         for _, element in self.tree:
             # Keep track of different XML tag types
@@ -71,7 +72,10 @@ class BioCObject:
             # file.write("Average abstract length: "
             #            + str(total_abstract_length / doc_count) + "\n")
 
-    # Returns a dictionary with {(PMID: Abstract), ...}
+    # Returns a dictionary with {(PMID: QUANTITY), ...}
+    # tag_text  argument represents the desired keyword for whatever QUANTITY you need
+    # examples are, "AbstractPassage", "Title Passage", etc
+    # Primary use with abstracts_collection
     def collect_all(self, tag_text):
         currentID = ""
         dict = {}
@@ -92,6 +96,8 @@ class BioCObject:
 
         return dict
 
+    # Returns a specific quantity based on tag_text (the desired type) and document_index, where it is stored.
+    # To return the 140th Abstract, for example, call collect_by_index("AbstractPassage", 140)
     def collect_by_index(self, tag_text, document_index):
         correct_index = False
         correct_passage = False
@@ -112,6 +118,9 @@ class BioCObject:
                 return element.text
             element.clear()
 
+    # Returns a specific quantity based on tag_text (the desired type) and PMID
+    # To return the Abstract of PMID 18183754, for example, call collect_by_index("AbstractPassage", 18183754)
+    # PMID can be entered with or without quotes
     def collect_by_id(self, tag_text, PMID):
         correct_index = False
         correct_passage = False
@@ -130,6 +139,8 @@ class BioCObject:
             element.clear()
 
     # Returns a dictionary with {(PMID: Title), ...}
+    # This is a title specific shortcut of the collect_all function
+    # primarily for abstacts_collection
     def titles(self):
         current_id = ""
         title_dict = {}
@@ -150,6 +161,9 @@ class BioCObject:
 
         return title_dict
 
+    # Returns a dictionary with {(PMID: Abstract), ...}
+    # This is an abstract specific shortcut of the collect_all function
+    # primarily for abstacts_collection
     def abstracts(self):
         current_id = ""
         dict = {}
@@ -171,6 +185,7 @@ class BioCObject:
         return dict
 
     # Returns a dictionary with {(PMID: [infon1, infon2, infon3, ...]), ...}
+    # Designed and testes with abstacts_collection
     def infons(self):
         current_id = ""
         infon_dict = {}
@@ -188,22 +203,27 @@ class BioCObject:
             element.clear()
 
         return infon_dict
-
+    
+    # Counts total number of documents using <document> tags 
+    # Testes with both abstracts and fulltext
     def number_of_documents(self):
         count = 0
 
         for _, element in self.tree:
-            if(element.tag == "document"):
+            if element.tag == "document":
                 count += 1
+
             element.clear()
 
         return count
 
+    # returns a dictionary of {(PMID: ParagraphText), ...}
+    # Where ParagraphText text represents all paragraphs associated with that PMID concatenated together 
+    # designed for fulltext
     def paragraphs_text(self):
         current_id = ""
         dict = {}
         collect_text = False
-        relevant_tags = ["abstract", "fig_caption", "fig_table_caption", ];
 
         for _, element in self.tree:
 
@@ -223,6 +243,11 @@ class BioCObject:
 
         return dict
 
+    # accepts a list of desired tags to include (list_of_relevant_tags),
+    # and a boolean value or whether or not to include the keywords text for each document
+    # returns a dictionary of {(PMID: BagOfText), ...}
+    # Where BagOfText text represents all texts from all desires and keywords iff include_keywords = True
+    # designed for fulltext
     def full_docs_parser(self, list_of_relevant_tags, include_keywords):
         current_id = ""
         dict = {}
@@ -252,6 +277,9 @@ class BioCObject:
 
         return dict
 
+    # returns dictionary of {(PMID: keywords), ...} 
+    # where keywords is the group of text associated with the "kwd" infon tag 
+    # designed for fulltext
     def keywords(self):
         current_id = ""
         dict = {}
