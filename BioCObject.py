@@ -20,7 +20,12 @@ class BioCObject:
         # Create iterative parser over XML file, fire an event at the end of each tag
         self.tree = etree.iterparse(self.filename, events=("end", ))
 
-    # Iteratively parse tree, one element at a time
+    # resets etree after function completion to allow for several consecutive functions
+    def rebuild(self):
+        self.tree = etree.iterparse(self.filename, events=("end",))
+
+    # Prints a data analytics sheet to output_file
+    # Iterative, so only a small amount of RAM used
     def run_analytics(self, ouput_file="Analytics.txt"):
         for _, element in self.tree:
             # Keep track of different XML tag types
@@ -30,7 +35,6 @@ class BioCObject:
                 self.infon_types.add(infon.attrib["key"])
                 if infon.attrib["key"] == "type":
                     self.section_types.add(infon.text)
-                    print(infon.text)
             # Iterate over fully read in documents
             if element.tag == "document":
                 # Keep track of document count
@@ -71,11 +75,15 @@ class BioCObject:
             #            + str(total_abstract_title_length / doc_count) + "\n")
             # file.write("Average abstract length: "
             #            + str(total_abstract_length / doc_count) + "\n")
+        self.rebuild()
 
-    # returns a dictionary with {(PMID: Abstract)}
-    def collect_abstracts(self):
+    # Returns a dictionary with {(PMID: QUANTITY), ...}
+    # tag_text  argument represents the desired keyword for whatever QUANTITY you need
+    # examples are, "AbstractPassage", "Title Passage", etc
+    # Primary use with abstracts_collection
+    def collect_all(self, tag_text):
         currentID = ""
-        abstracts_dict = {}
+        dict = {}
         collect_passage = False
 
         for _, element in self.tree:
@@ -83,30 +91,228 @@ class BioCObject:
             if element.tag == "id":
                 currentID = element.text
 
-            elif element.text == "AbstractPassage":
+            elif element.text == tag_text:
                 collect_passage = True
 
             elif collect_passage and element.tag == "text":
-                abstracts_dict[currentID] = element.text
+                dict[currentID] = element.text
                 collect_passage = False
+            element.clear()
+        self.rebuild()
+        return dict
 
-        return abstracts_dict
+    # Returns a specific quantity based on tag_text (the desired type) and document_index, where it is stored.
+    # To return the 140th Abstract, for example, call collect_by_index("AbstractPassage", 140)
+    def collect_by_index(self, tag_text, document_index):
+        correct_index = False
+        correct_passage = False
+        doc_count = -1
+        value = ""
 
-    def collect_titles(self):
-        currentID = ""
+        for _, element in self.tree:
+
+            if not correct_index and element.tag == "document":
+                doc_count += 1
+
+                if doc_count == document_index:
+                    correct_index = True
+
+            elif correct_index and element.text == tag_text:
+                correct_passage = True
+
+            elif correct_passage and correct_index and element.tag == "text":
+                value = element.text
+                break
+            element.clear()
+        self.rebuild()
+        return value
+
+    # Returns a specific quantity based on tag_text (the desired type) and PMID
+    # To return the Abstract of PMID 18183754, for example, call collect_by_index("AbstractPassage", 18183754)
+    # PMID can be entered with or without quotes
+    def collect_by_id(self, tag_text, PMID):
+        correct_index = False
+        correct_passage = False
+        value = ""
+
+        for _, element in self.tree:
+
+            if not correct_index and element.tag == "id":
+                if element.text == str(PMID):
+                    correct_index = True
+
+            elif correct_index and element.text == tag_text:
+                correct_passage = True
+
+            elif correct_passage and correct_index and element.tag == "text":
+                value = element.text
+                break
+            element.clear()
+        self.rebuild()
+        return value
+
+    # Returns a dictionary with {(PMID: Title), ...}
+    # This is a title specific shortcut of the collect_all function
+    # primarily for abstacts_collection
+    def titles(self):
+        current_id = ""
         title_dict = {}
         collect_passage = False
 
         for _, element in self.tree:
 
             if element.tag == "id":
-                currentID = element.text
+                current_id = element.text
 
             elif element.text == "TitlePassage":
                 collect_passage = True
 
             elif collect_passage and element.tag == "text":
-                title_dict[currentID] = element.text
+                title_dict[current_id] = element.text
                 collect_passage = False
+            element.clear()
 
+        self.rebuild()
         return title_dict
+
+    # Returns a dictionary with {(PMID: Abstract), ...}
+    # This is an abstract specific shortcut of the collect_all function
+    # primarily for abstacts_collection
+    def abstracts(self):
+        current_id = ""
+        dict = {}
+        collect_passage = False
+
+        for _, element in self.tree:
+
+            if element.tag == "id" :
+                current_id = element.text
+
+            elif element.text == "AbstractPassage" or element.text == "abstract":
+                collect_passage = True
+
+            elif collect_passage and element.tag == "text":
+                dict[current_id] = element.text
+                collect_passage = False
+            element.clear()
+
+        self.rebuild()
+        return dict
+
+    # Returns a dictionary with {(PMID: [infon1, infon2, infon3, ...]), ...}
+    # Designed and testes with abstacts_collection
+    def infons(self):
+        current_id = ""
+        infon_dict = {}
+
+        for _, element in self.tree:
+
+            if element.tag == "id":
+                current_id = element.text
+
+            elif element.tag == "infon":
+                try:
+                    infon_dict[current_id].append(element.text)
+                except KeyError:
+                    infon_dict[current_id] = [element.text]
+            element.clear()
+
+        self.rebuild()
+        return infon_dict
+
+    # Counts total number of documents using <document> tags
+    # Testes with both abstracts and fulltext
+    def number_of_documents(self):
+        count = 0
+
+        for _, element in self.tree:
+            if element.tag == "document":
+                count += 1
+
+            element.clear()
+
+        self.rebuild()
+        return count
+
+    # returns a dictionary of {(PMID: ParagraphText), ...}
+    # Where ParagraphText text represents all paragraphs associated with that PMID concatenated together
+    # designed for fulltext
+    def paragraphs_text(self):
+        current_id = ""
+        dict = {}
+        collect_text = False
+
+        for _, element in self.tree:
+
+            if not collect_text and element.tag == "id":
+                current_id = element.text[3:]
+
+            elif not collect_text and element.text == "paragraph":
+                collect_text = True;
+
+            elif collect_text and element.tag == "text":
+                try:
+                    dict[current_id] += element.text
+                except KeyError:
+                    dict[current_id] = element.text
+                collect_text = False;
+            element.clear()
+
+        self.rebuild()
+        return dict
+
+    # accepts a list of desired tags to include (list_of_relevant_tags),
+    # and a boolean value or whether or not to include the keywords text for each document
+    # returns a dictionary of {(PMID: BagOfText), ...}
+    # Where BagOfText text represents all texts from all desires and keywords iff include_keywords = True
+    # designed for fulltext
+    def full_docs_parser(self, list_of_relevant_tags, include_keywords):
+        current_id = ""
+        dict = {}
+        collect_text = False
+
+        for _, element in self.tree:
+
+            if not collect_text and element.tag == "id":
+                current_id = element.text[3:]
+
+            elif not collect_text and element.text in list_of_relevant_tags:
+                collect_text = True;
+
+            elif collect_text and element.tag == "text":
+                try:
+                    dict[current_id] += element.text
+                except KeyError:
+                    dict[current_id] = element.text
+                collect_text = False;
+            elif include_keywords and element.attrib == {'key': 'kwd'}:
+                try:
+                    dict[current_id] += element.text
+                except KeyError:
+                    dict[current_id] = element.text
+
+            element.clear()
+
+        self.rebuild()
+        return dict
+
+    # returns dictionary of {(PMID: keywords), ...}
+    # where keywords is the group of text associated with the "kwd" infon tag
+    # designed for fulltext
+    def keywords(self):
+        current_id = ""
+        dict = {}
+
+        for _, element in self.tree:
+
+            if element.tag == "id":
+                current_id = element.text[3:]
+
+            elif element.attrib == {'key': 'kwd'}:
+                dict[current_id] = element.text
+
+            element.clear()
+
+        self.rebuild()
+        return dict
+
