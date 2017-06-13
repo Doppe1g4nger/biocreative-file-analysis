@@ -178,7 +178,7 @@ class BioCObject:
     def abstracts(self):
         """ Returns a dictionary with {(PMID: Abstract), ...}
         This is an abstract specific shortcut of the collect_all function
-        primarily for abstacts_collection"""
+        primarily for abstracts_collection"""
         current_id = ""
         dict = {}
         collect_passage = False
@@ -248,14 +248,14 @@ class BioCObject:
                 current_id = element.text[3:]
 
             elif not collect_text and element.text == "paragraph":
-                collect_text = True;
+                collect_text = True
 
             elif collect_text and element.tag == "text":
                 try:
                     dict[current_id] += element.text
                 except KeyError:
                     dict[current_id] = element.text
-                collect_text = False;
+                collect_text = False
             element.clear()
 
         self.rebuild()
@@ -277,14 +277,14 @@ class BioCObject:
                 current_id = element.text[3:]
 
             elif not collect_text and element.text in list_of_relevant_tags:
-                collect_text = True;
+                collect_text = True
 
             elif collect_text and element.tag == "text":
                 try:
                     dict[current_id] += element.text
                 except KeyError:
                     dict[current_id] = element.text
-                collect_text = False;
+                collect_text = False
             elif include_keywords and element.attrib == {'key': 'kwd'}:
                 try:
                     dict[current_id] += element.text
