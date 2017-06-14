@@ -27,8 +27,9 @@ def get_desired_semantic_types(file_name):
     selected_types = set()
     with open(file_name) as f:
         for line in f:
-            if line.startswith("!") and line.endswith(":"):
-                selected_types.add(line[1:-1])
+            line = line.strip()  # Removes newline that confuses endswith in next statement
+            if not line.startswith("!") and line.endswith(":"):
+                selected_types.add(line[0:-1])
     return selected_types
 
 
@@ -76,15 +77,23 @@ def build_concept_list(thesaurus_file, restrict_semantic_types=False, sem_types=
     concept_list = []
     with open(thesaurus_file) as f:
         reader = csv.DictReader(f, fieldnames=_fieldnames, delimiter="\t")
-        for row in reader:
-            if restrict_semantic_types:
-                if sem_types is None:
-                    raise ValueError("Error: sem_types=None,"
-                                     " sem_types must be a list or set of semantic_types")
-                elif row["semantic_type"] not in sem_types:
-                    pass
-            _concept = NCIConcept(row)
-            concept_list.append(_concept)
+        if restrict_semantic_types:
+            if sem_types is None:
+                raise ValueError("Error: sem_types=None,"
+                                 " sem_types must be a list or set of semantic_types")
+            for row in reader:
+                is_relevant = False
+                for sem in row["semantic_type"].split("|"):
+                    if sem in sem_types:
+                        is_relevant = True
+                        break
+                if is_relevant:
+                    _concept = NCIConcept(row)
+                    concept_list.append(_concept)
+        else:
+            for row in reader:
+                _concept = NCIConcept(row)
+                concept_list.append(_concept)
     return concept_list
 
 
