@@ -1,7 +1,6 @@
 """
-Script to pull desired concepts out of NCI Thesaurus and either:
-1. Annotate BioC data directly with NCBO Annotator Web API
-2. Convert concepts to appropriate XML file to be fed into Concept Mapper
+Script to pull desired concepts out of NCI Thesaurus and
+convert concepts to appropriate XML file to be fed into Concept Mapper
 """
 
 import NCI_flat_file_parser as NCIt
