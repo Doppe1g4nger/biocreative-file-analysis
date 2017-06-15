@@ -1,6 +1,6 @@
 """
 Test file for counting num docs, this library does not suite our needs
-Gives memory blowup becaue of bad management
+Gives memory blowup because of bad etree management
 """
 import bioc
 

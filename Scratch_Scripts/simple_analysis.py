@@ -1,5 +1,5 @@
 """
-Simple file analysis script, used to count umber of abstracts in abstract collection
+Simple file analysis script, used to count number of abstracts in abstract collection
 """
 if __name__ == "__main__":
     count = 0

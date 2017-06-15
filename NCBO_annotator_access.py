@@ -56,8 +56,8 @@ if __name__ == "__main__":
     count = 0
     for item in json_response:
         for annotation in item["annotations"]:
-            # print(annotation["matchType"], annotation["text"])
-            if annotation["text"].strip().lower() in all_terms:
-                print(annotation["matchType"], annotation["text"])
-                count += 1
+            print(annotation["matchType"], annotation["text"])
+            # if annotation["text"].strip().lower() in all_terms:
+            #     print(annotation["matchType"], annotation["text"])
+            count += 1
     print(count)

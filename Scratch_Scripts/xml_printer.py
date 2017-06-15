@@ -1,5 +1,5 @@
 """
-Simple script used to write first fultext document to a file to view its structure
+Simple script used to write first fulltext document to a file to view its structure
 """
 import lxml.etree as etree
 
