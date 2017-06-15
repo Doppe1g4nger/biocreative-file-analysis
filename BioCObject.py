@@ -316,3 +316,11 @@ class BioCObject:
         self.rebuild()
         return dict
 
+    def manual_iterator(self):
+        """
+        Returns iterative parser attribute of BioCObject class
+        Allows for manual iteration over BioC file and direct access to lxml.etree.iterparse()
+        :return: lxml iterparse object
+        """
+        return self.tree
+
