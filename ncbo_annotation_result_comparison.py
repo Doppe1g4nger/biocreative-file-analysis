@@ -12,9 +12,9 @@ def get_unique_annotations(file_name):
     return id_to_annotations
 
 if __name__ == "__main__":
-    terms_to_be_compared_to = get_unique_annotations(r"C:\Users\Danie\Downloads\dis_training_set_NCBO_test.txt")
+    terms_to_be_compared_to = get_unique_annotations(r"C:\Users\Danie\Downloads\dis_training_set_NCBO_test_restricted.txt")
     ontologies = ["DOID", "HP", "IDO", "ORDO", "PDO", "MESH", "SNOMEDCT", "RCD", "OAE", "ICD10CM"]
-    with open(r"C:\Users\Danie\Downloads\ontology_comparison_results.txt") as f:
+    with open(r"C:\Users\Danie\Downloads\ontology_comparison_results_restricted.txt", "w") as f:
         for ontology in ontologies:
             num_unique_terms = 0
             terms_to_compare = get_unique_annotations(
@@ -27,4 +27,5 @@ if __name__ == "__main__":
             average_unique_terms = num_unique_terms / len(terms_to_compare)
             f.write("Compared to NCIT, "
                     + ontology + " had an average of:\n"
-                    + str(average_unique_terms) + "unique terms per abstract that both ontologies annotated.\n")
+                    + str(round(average_unique_terms, 3))
+                    + " unique terms per abstract that both ontologies annotated.\n")

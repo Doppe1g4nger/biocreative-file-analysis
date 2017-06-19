@@ -25,7 +25,7 @@ def get_restricted_ncit_terms():
 
 
 if __name__ == "__main__":
-    ontologies = ["SNOMEDCT", "RCD", "OAE", "ICD10CM"]
+    ontologies = ["GO"]
     # all_terms = get_restricted_ncit_terms()
     base_url = "http://data.bioontology.org/annotator"
     api_key = get_api_key(r"C:\Users\Danie\PycharmProjects\biocreative-file-analysis\NCBO_API_KEY")
@@ -36,14 +36,14 @@ if __name__ == "__main__":
                 "which are found predominantly in skin but also in the bowel and the eye."
     }
     for ontology in ontologies:
-        with open(r"C:\Users\Danie\Downloads\dis_training_set_NCBO_test_" + ontology + ".txt", "w") as file:
+        with open(r"C:\Users\Danie\Downloads\bp_training_set_NCBO_test_" + ontology + ".txt", "w") as file:
             parameters["ontologies"] = [ontology]
             num_calls = 0
             num_zero_annotations = 0
             num_annotations = 0
             tot_annotations = 0
             id_to_abstract = {}
-            with open(r"C:\Users\Danie\Downloads\dis_training_abstracts.pkl", "rb") as f:
+            with open(r"C:\Users\Danie\Downloads\bp_training_abstracts.pkl", "rb") as f:
                 id_to_abstract = pickle.load(f)
             for abs_id in id_to_abstract:
                 num_annotations = 0
