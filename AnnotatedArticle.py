@@ -22,5 +22,9 @@ class AnnotatedArticle:
 
     @classmethod
     def copy(cls, cls_instance):
-            data = copy.deepcopy(cls_instance)
-            return cls(data)
+            d_name = copy.deepcopy(cls_instance.dictionary_name)
+            num_hits = copy.deepcopy(cls_instance.number_of_hits)
+            set_terms = copy.deepcopy(cls_instance.set_of_hit_terms)
+            hit_counter = copy.deepcopy(cls_instance.counter_of_hit_terms)
+            attrib_dict = copy.deepcopy(cls_instance.list_of_attrib_dicts)
+            return cls(d_name, num_hits, set_terms, hit_counter, attrib_dict)
