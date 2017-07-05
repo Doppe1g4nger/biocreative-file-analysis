@@ -1,88 +1,99 @@
+# XMI_to_AA
+
 import lxml.etree as etree
 from collections import Counter
 import os
 import AnnotatedArticle as aa
 import pickle
 
-kinase_input_dirs = [x[0] for x in os.walk('/data/CM_output/Comparison/CMFT_Post-Processed/')]
-del kinase_input_dirs[0]
-axis_input_dirs = [x[0] for x in os.walk('/data/CM_output/Comparison/Ontologies/Combined/Post-Processed/DIS')]#['/data/CM_output/Comparison/Ontologies/Combined/Post-Processed/BP/GO-old']#
-labeled_positives_dir = '/data/TrainingCanonicalNames_ToDocID_dicts/DIS_abs_train_canon_to_docid_dict.pkl'
-del axis_input_dirs[0], axis_input_dirs[1], axis_input_dirs[1], axis_input_dirs[1], \
-    axis_input_dirs[1], axis_input_dirs[1], axis_input_dirs[1], axis_input_dirs[2]
+#path_list = [['/data/CM_output/Comparison/Kinases/Relevant/BP/', '/data/CM_output/Comparison/Kinases/Relevant/Post-Processed/BP/'],
+#             ['/data/CM_output/Comparison/Kinases/Relevant/DIS/', '/data/CM_output/Comparison/Kinases/Relevant/Post-Processed/DIS/'],
+#             ['/data/CM_output/Comparison/Kinases/Irrelevant/BP/', '/data/CM_output/Comparison/Kinases/Irrelevant/Post-Processed/BP/'],
+#             ['/data/CM_output/Comparison/Kinases/Irrelevant/DIS/', '/data/CM_output/Comparison/Kinases/Irrelevant/Post-Processed/DIS/']
+#             ]
 
-total_positives = 0
+input_list = [x[0] for x in os.walk('/data/CM_output/Comparison/Ontologies/Relevant/DIS')] + \
+             [x[0] for x in os.walk('/data/CM_output/Comparison/Ontologies/Irrelevant/DIS')] + \
+             ['/data/CM_output/Comparison/Kinases/Relevant/DIS',
+              '/data/CM_output/Comparison/Kinases/Irrelevant/DIS',
+              '/data/CM_output/Comparison/Kinases/Relevant/BP',
+              '/data/CM_output/Comparison/Kinases/Irrelevant/BP',
+              '/data/CM_output/Comparison/Ontologies/Relevant/BP/GO',
+              '/data/CM_output/Comparison/Ontologies/Irrelevant/BP/GO']
 
+output_list = [x[0] for x in os.walk('/data/CM_output/Comparison/Ontologies/Relevant/Post-Processed/DIS')] + \
+              [x[0] for x in os.walk('/data/CM_output/Comparison/Ontologies/Irrelevant/Post-Processed/DIS')] + \
+              ['/data/CM_output/Comparison/Kinases/Relevant/Post-Processed/DIS',
+               '/data/CM_output/Comparison/Kinases/Irrelevant/Post-Processed/DIS',
+               '/data/CM_output/Comparison/Kinases/Relevant/Post-Processed/BP',
+               '/data/CM_output/Comparison/Kinases/Irrelevant/Post-Processed/BP',
+               '/data/CM_output/Comparison/Ontologies/Relevant/Post-Processed/BP/GO',
+               '/data/CM_output/Comparison/Ontologies/Irrelevant/Post-Processed/BP/GO']
 
-def load_obj(name):
-    with open(name, 'rb') as f:
-        return pickle.load(f)
+del input_list[0], input_list[10], output_list[0], output_list[10]
 
-labeled_positives = load_obj(labeled_positives_dir)
-print("LP:" + str(labeled_positives))
+# old_in = ['/data/CM_output/Comparison/Ontologies/Irrelevant/BP/GO-old',
+#           '/data/CM_output/Comparison/Ontologies/Relevant/BP/GO-old',
+#           '/data/CM_output/Comparison/Ontologies/Irrelevant/BP/GO-old',
+#           '/data/CM_output/Comparison/Ontologies/Relevant/BP/GO-old']
+#
+# old_out = ['/data/CM_output/Comparison/Ontologies/Irrelevant/Post-Processed/BP/GO-old',
+#            '/data/CM_output/Comparison/Ontologies/Relevant/Post-Processed/BP/GO-old',
+#            '/data/CM_output/Comparison/Ontologies/Irrelevant/Post-Processed/BP/GO-old',
+#            '/data/CM_output/Comparison/Ontologies/Relevant/Post-Processed/BP/GO-old']
+#
+# input_list = ['/data/CM_output/Comparison_FT/Kinases/Irrelevant/BP',
+#               '/data/CM_output/Comparison_FT/Kinases/Irrelevant/DIS']
+#
+# output_list = ['/data/CM_output/Comparison_FT/Kinases/Irrelevant/Post-Processed/BP',
+#                '/data/CM_output/Comparison_FT/Kinases/Irrelevant/Post-Processed/DIS']
 
-for k in range(0, len(kinase_input_dirs)):
-    kinase_list = []
-    axis_list = []
-    temp_count = 0
-    temp = ''
-    for filename in os.listdir(kinase_input_dirs[k]):
-        obj = load_obj(kinase_input_dirs[k] + "/" + filename)
-        if obj.number_of_hits > 0:
-            kinase_list.append(filename)
-    print("\n\n")
-    print(kinase_input_dirs[k])
-
-    for i in range(0, len(axis_input_dirs)):
-        axis_list = []
-        pred_positives = {}
-        counter = 0
-        print("\n")
-        temp_count = 0
-        for filename in os.listdir(axis_input_dirs[i]):
-            counter += 1
-            obj = load_obj(axis_input_dirs[i] + "/" + filename)
-            if obj.number_of_hits > 0:
-                axis_list.append(filename)
-            pmcid = filename.strip('.txt.xmi.pkl')
-            if pmcid in temp:
-                temp_count += 1
-
-        print("TEMP: " + str(temp_count))
-
-        overlap_list = [elem for elem in axis_list if elem in kinase_list]
-
-        current_file = axis_input_dirs[i]
-        print(current_file)
-
-        TP = 0
-        FP = 0
-
-        for filename in overlap_list:
-            pmcid = filename.strip('.txt.xmi.pkl')
-            TP_found = False
-            obj = load_obj(kinase_input_dirs[k] + "/" + filename)
-            for canon_term in obj.set_of_hit_terms:
-                try:
-                    if pmcid in labeled_positives[canon_term]:
-                        TP += 1
-                        TP_found = True
-                        break
-                except KeyError:
-                    pass
-            if not TP_found:
-                FP += 1
-
-        num_articles = counter // 2
-        print("TP:\tFN:\tFP:\tTN:")
-        print(str(TP) + "\t" + str(num_articles - TP) + "\t" + str(FP) + "\t" + str(num_articles - FP))
+input_list = [x[0] for x in os.walk('/data/CM_output/Comparison/Kinases_CM_FunTimes/')]
+output_list = [x[0] for x in os.walk('/data/CM_output/Comparison/CMFT_Post-Processed/')]
+del input_list[0], output_list[0]
 
 
+for i in range(0, len(input_list)):
 
+    input_path = input_list[i]
+    output_path = output_list[i]
+    list_of_hit_counts = []
+    zero_counter = 0
+    delete_input_files = False
+    doc_count = 0
 
+    for filename in os.listdir(input_path):
+        doc_count += 1
+        if doc_count % 10000 == 0:
+            print(doc_count)
 
+        xmi = etree.iterparse(input_path + "/" + filename, events=("end", ))
 
+        hit_count = 0
+        all_hit_terms_list = []
+        all_hit_terms_set = set()
+        all_hit_attributes = []
+        hit_terms_count = Counter()
 
+        for _, elem in xmi:
+            if str(elem).__contains__('DictTerm'):
+                hit_count += 1
+                all_hit_terms_list.append(elem.attrib['DictCanon'])
+                all_hit_attributes.append(dict(elem.attrib))
 
+        hit_terms_count = Counter(all_hit_terms_list)
+        all_hit_terms_set = set(all_hit_terms_list)
 
+        article_obj = aa.AnnotatedArticle("TestDict", hit_count, all_hit_terms_set, hit_terms_count, all_hit_attributes)
+        list_of_hit_counts.append(hit_count)
+        if hit_count == 0:
+            zero_counter += 1
 
+        if delete_input_files:
+            os.remove(input_path + "/" + filename)
+
+        with open(output_path + "/" + filename + '.pkl', 'wb') as output_file:
+            pickle.dump(article_obj, output_file, pickle.HIGHEST_PROTOCOL)
+
+    print(input_path)
+    print(hit_count)
