@@ -6,8 +6,8 @@ import os
 import AnnotatedArticle as aa
 import pickle
 
-input_list = ['/data/CM_output/FT/All/ORDO']
-output_list = ['/data/CM_output/FT/Post-Processed/All/ORDO']
+input_list = ['/data/CM_output/FT/All/NCIT-Restricted']
+output_list = ['/data/CM_output/FT/Post-Processed/All/NCIT-Restricted']
 
 for i in range(0, len(input_list)):
 
