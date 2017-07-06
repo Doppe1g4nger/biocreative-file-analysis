@@ -6,52 +6,8 @@ import os
 import AnnotatedArticle as aa
 import pickle
 
-#path_list = [['/data/CM_output/Comparison/Kinases/Relevant/BP/', '/data/CM_output/Comparison/Kinases/Relevant/Post-Processed/BP/'],
-#             ['/data/CM_output/Comparison/Kinases/Relevant/DIS/', '/data/CM_output/Comparison/Kinases/Relevant/Post-Processed/DIS/'],
-#             ['/data/CM_output/Comparison/Kinases/Irrelevant/BP/', '/data/CM_output/Comparison/Kinases/Irrelevant/Post-Processed/BP/'],
-#             ['/data/CM_output/Comparison/Kinases/Irrelevant/DIS/', '/data/CM_output/Comparison/Kinases/Irrelevant/Post-Processed/DIS/']
-#             ]
-
-input_list = [x[0] for x in os.walk('/data/CM_output/Comparison/Ontologies/Relevant/DIS')] + \
-             [x[0] for x in os.walk('/data/CM_output/Comparison/Ontologies/Irrelevant/DIS')] + \
-             ['/data/CM_output/Comparison/Kinases/Relevant/DIS',
-              '/data/CM_output/Comparison/Kinases/Irrelevant/DIS',
-              '/data/CM_output/Comparison/Kinases/Relevant/BP',
-              '/data/CM_output/Comparison/Kinases/Irrelevant/BP',
-              '/data/CM_output/Comparison/Ontologies/Relevant/BP/GO',
-              '/data/CM_output/Comparison/Ontologies/Irrelevant/BP/GO']
-
-output_list = [x[0] for x in os.walk('/data/CM_output/Comparison/Ontologies/Relevant/Post-Processed/DIS')] + \
-              [x[0] for x in os.walk('/data/CM_output/Comparison/Ontologies/Irrelevant/Post-Processed/DIS')] + \
-              ['/data/CM_output/Comparison/Kinases/Relevant/Post-Processed/DIS',
-               '/data/CM_output/Comparison/Kinases/Irrelevant/Post-Processed/DIS',
-               '/data/CM_output/Comparison/Kinases/Relevant/Post-Processed/BP',
-               '/data/CM_output/Comparison/Kinases/Irrelevant/Post-Processed/BP',
-               '/data/CM_output/Comparison/Ontologies/Relevant/Post-Processed/BP/GO',
-               '/data/CM_output/Comparison/Ontologies/Irrelevant/Post-Processed/BP/GO']
-
-del input_list[0], input_list[10], output_list[0], output_list[10]
-
-# old_in = ['/data/CM_output/Comparison/Ontologies/Irrelevant/BP/GO-old',
-#           '/data/CM_output/Comparison/Ontologies/Relevant/BP/GO-old',
-#           '/data/CM_output/Comparison/Ontologies/Irrelevant/BP/GO-old',
-#           '/data/CM_output/Comparison/Ontologies/Relevant/BP/GO-old']
-#
-# old_out = ['/data/CM_output/Comparison/Ontologies/Irrelevant/Post-Processed/BP/GO-old',
-#            '/data/CM_output/Comparison/Ontologies/Relevant/Post-Processed/BP/GO-old',
-#            '/data/CM_output/Comparison/Ontologies/Irrelevant/Post-Processed/BP/GO-old',
-#            '/data/CM_output/Comparison/Ontologies/Relevant/Post-Processed/BP/GO-old']
-#
-# input_list = ['/data/CM_output/Comparison_FT/Kinases/Irrelevant/BP',
-#               '/data/CM_output/Comparison_FT/Kinases/Irrelevant/DIS']
-#
-# output_list = ['/data/CM_output/Comparison_FT/Kinases/Irrelevant/Post-Processed/BP',
-#                '/data/CM_output/Comparison_FT/Kinases/Irrelevant/Post-Processed/DIS']
-
-input_list = [x[0] for x in os.walk('/data/CM_output/Comparison/Kinases_CM_FunTimes/')]
-output_list = [x[0] for x in os.walk('/data/CM_output/Comparison/CMFT_Post-Processed/')]
-del input_list[0], output_list[0]
-
+input_list = ['/data/CM_output/FT/All/ORDO']
+output_list = ['/data/CM_output/FT/Post-Processed/All/ORDO']
 
 for i in range(0, len(input_list)):
 
@@ -59,12 +15,12 @@ for i in range(0, len(input_list)):
     output_path = output_list[i]
     list_of_hit_counts = []
     zero_counter = 0
-    delete_input_files = False
+    delete_input_files = True
     doc_count = 0
 
     for filename in os.listdir(input_path):
         doc_count += 1
-        if doc_count % 10000 == 0:
+        if doc_count % 100 == 0:
             print(doc_count)
 
         xmi = etree.iterparse(input_path + "/" + filename, events=("end", ))
