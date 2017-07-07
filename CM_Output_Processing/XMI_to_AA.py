@@ -6,8 +6,8 @@ import os
 import AnnotatedArticle as aa
 import pickle
 
-input_list = ['/data/CM_output/FT/All/NCIT-Restricted']
-output_list = ['/data/CM_output/FT/Post-Processed/All/NCIT-Restricted']
+input_list = ['/data/CM_output/Abst/BandT/Kinase_DIS_Test']
+output_list = ['/data/CM_output/Abst/Post-Processed/BandT/Kinase_DIS_Test']
 
 for i in range(0, len(input_list)):
 

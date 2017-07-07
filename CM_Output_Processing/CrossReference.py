@@ -6,7 +6,7 @@ import AnnotatedArticle as aa
 import pickle
 
 kinase_input_dir = '/data/CM_output/Comparison_FT/Kinases/Combined/Post-Processed/BP'
-axis_input_dirs = ['/data/CM_output/Comparison_FT/Ontologies/Combined/Post-Processed/BP/GO-old']
+axis_input_dirs = ['/data/CM_output/Comparison_FT/Ontologies/Combined/Post-Processed/BP/GO']
 output_file = '/data/CM_output/FT/Post-Processed/All/test.pkl'
 #del axis_input_dirs[0]
 kinase_list = []
@@ -47,6 +47,7 @@ for i in range(0, len(axis_input_dirs)):
     print("TEMP: " + str(temp_count))
 
     overlap_list = [elem for elem in axis_list if elem in kinase_list]
+    print(overlap_list)
 
     results_dict = {}
     ocount = 0
