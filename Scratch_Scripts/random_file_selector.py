@@ -5,12 +5,15 @@ import pickle
 from timeit import default_timer
 
 if __name__ == "__main__":
-    base_path = "/data/Random Abstract Selections/"
+    base_path = "/data/Random FullText Selections/"
     file_load_start = default_timer()
     all_files = get_all_files(input("Give path to directory to select random files from: "))
     file_load_end = default_timer()
     print("Time to load files:", (file_load_end - file_load_start) / 60, "minutes")
-    subset_size = 3400000
+    subset_size = 0
+    one_run = True if input("One run? (y/n): ") == "y" else False
+    if one_run:
+        subset_size = int(input("Size of run?: "))
     while subset_size < len(all_files):
         process_start = default_timer()
         subset = set()
@@ -25,3 +28,5 @@ if __name__ == "__main__":
         print("Time to process random batch of size {batch_size}:".format(batch_size=subset_size),
               (process_end - process_start) / 60, "minutes")
         subset_size += 10000
+        if one_run:
+            break
