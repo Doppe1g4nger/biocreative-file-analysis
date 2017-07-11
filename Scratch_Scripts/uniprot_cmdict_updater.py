@@ -18,7 +18,7 @@ def get_names(term_tags, superset, node):
 
 
 if __name__ == "__main__":
-    path_to_alter = "/home/daniel/Downloads/ConMapDictionaries/Protein Dictionaries/Uniprot_Extended_Dictionaries/"
+    path_to_alter = "/home/daniel/Downloads/ConMapDictionaries/Protein Dictionaries/Original_Dictionaries/"
     synonym_dict = defaultdict(list)
     name_tags = {
         "fullName",
@@ -50,6 +50,6 @@ if __name__ == "__main__":
             for variant in found_tokens:
                 new_variant = etree.Element("variant", base=variant)
                 token.append(new_variant)
-        with open(file.replace(".xml", "_test.xml"), "wb") as f:
+        with open(file.replace("/Original_Dictionaries/", "/Uniprot_Extended_Dictionaries/"), "wb") as f:
             f.write(b'<?xml version="1.0" encoding="UTF-8" ?>\n')
             root_to_mod.write(f, pretty_print=True)

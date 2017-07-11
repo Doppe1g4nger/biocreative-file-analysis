@@ -6,8 +6,9 @@ from timeit import default_timer
 
 if __name__ == "__main__":
     base_path = "/data/Random FullText Selections/"
+    path = input("Give path to directory to select random files from: ")
     file_load_start = default_timer()
-    all_files = get_all_files(input("Give path to directory to select random files from: "))
+    all_files = get_all_files(path)
     file_load_end = default_timer()
     print("Time to load files:", (file_load_end - file_load_start) / 60, "minutes")
     subset_size = 0
