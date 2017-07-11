@@ -6,50 +6,57 @@ import os
 import AnnotatedArticle as aa
 import pickle
 
-input_list = ['/data/CM_output/Abst/BandT/Kinase_DIS_Test']
-output_list = ['/data/CM_output/Abst/Post-Processed/BandT/Kinase_DIS_Test']
 
-for i in range(0, len(input_list)):
+if __name__ == "__main__":
 
-    input_path = input_list[i]
-    output_path = output_list[i]
-    list_of_hit_counts = []
-    zero_counter = 0
-    delete_input_files = True
-    doc_count = 0
+    # input_list = [x[0] for x in os.walk('/data/CM_output/Comparison_FT/Kinases/Combined/DictCompare/')]
+    # output_list = [x[0] for x in os.walk('/data/CM_output/Comparison_FT/Kinases/Combined/Post-Processed/DictCompare/')]
+    # del input_list[0], output_list[0]
 
-    for filename in os.listdir(input_path):
-        doc_count += 1
-        if doc_count % 100 == 0:
-            print(doc_count)
+    input_list = ['/data/CM_output/Abst/BandT/GO']
+    output_list = ['/data/CM_output/Abst/Post-Processed/BandT/GO']
 
-        xmi = etree.iterparse(input_path + "/" + filename, events=("end", ))
+    for i in range(0, len(input_list)):
 
-        hit_count = 0
-        all_hit_terms_list = []
-        all_hit_terms_set = set()
-        all_hit_attributes = []
-        hit_terms_count = Counter()
+        input_path = input_list[i]
+        output_path = output_list[i]
+        list_of_hit_counts = []
+        zero_counter = 0
+        delete_input_files = True
+        doc_count = 0
 
-        for _, elem in xmi:
-            if str(elem).__contains__('DictTerm'):
-                hit_count += 1
-                all_hit_terms_list.append(elem.attrib['DictCanon'])
-                all_hit_attributes.append(dict(elem.attrib))
+        for filename in os.listdir(input_path):
+            doc_count += 1
+            if doc_count % 10000 == 0:
+                print(doc_count)
 
-        hit_terms_count = Counter(all_hit_terms_list)
-        all_hit_terms_set = set(all_hit_terms_list)
+            xmi = etree.iterparse(input_path + "/" + filename, events=("end", ))
 
-        article_obj = aa.AnnotatedArticle("TestDict", hit_count, all_hit_terms_set, hit_terms_count, all_hit_attributes)
-        list_of_hit_counts.append(hit_count)
-        if hit_count == 0:
-            zero_counter += 1
+            hit_count = 0
+            all_hit_terms_list = []
+            all_hit_terms_set = set()
+            all_hit_attributes = []
+            hit_terms_count = Counter()
 
-        if delete_input_files:
-            os.remove(input_path + "/" + filename)
+            for _, elem in xmi:
+                if str(elem).__contains__('DictTerm'):
+                    hit_count += 1
+                    all_hit_terms_list.append(elem.attrib['DictCanon'])
+                    all_hit_attributes.append(dict(elem.attrib))
 
-        with open(output_path + "/" + filename + '.pkl', 'wb') as output_file:
-            pickle.dump(article_obj, output_file, pickle.HIGHEST_PROTOCOL)
+            hit_terms_count = Counter(all_hit_terms_list)
+            all_hit_terms_set = set(all_hit_terms_list)
 
-    print(input_path)
-    print(hit_count)
+            article_obj = aa.AnnotatedArticle("TestDict", hit_count, all_hit_terms_set, hit_terms_count, all_hit_attributes)
+            list_of_hit_counts.append(hit_count)
+            if hit_count == 0:
+                zero_counter += 1
+
+            if delete_input_files:
+                os.remove(input_path + "/" + filename)
+
+            with open(output_path + "/" + filename + '.pkl', 'wb') as output_file:
+                pickle.dump(article_obj, output_file, pickle.HIGHEST_PROTOCOL)
+
+        print(input_path)
+        print(hit_count)

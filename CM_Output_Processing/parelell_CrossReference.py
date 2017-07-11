@@ -7,9 +7,9 @@ import pickle
 import multiprocessing as mp
 import tqdm
 
-kinase_input_dir = '/data/CM_output/Comparison_FT/Kinases/Combined/Post-Processed/DIS'
-axis_input_dir = '/data/CM_output/Comparison_FT/Ontologies/Combined/Post-Processed/DIS/HP'
-output_file = '/data/CM_output/FT/Post-Processed/All/juink.pkl'
+kinase_input_dir = '/data/CM_output/FT/Post-Processed/All/Kinase_BP_Test'
+axis_input_dir = '/data/CM_output/FT/Post-Processed/All/GO'
+output_file = '/data/CM_output/Abst/Post-Processed/BandT/Abs_BandT/test2.pkl'
 # del axis_input_dirs[0]
 kinase_list = []
 axis_list = []
@@ -31,9 +31,12 @@ def kinase_processor(filename):
 
 
 def axis_processor(filename):
-    obj = load_obj(axis_input_dir + "/" + filename)
-    if obj.number_of_hits > 0:
-        return filename
+    try:
+        obj = load_obj(axis_input_dir + "/" + filename)
+        if obj.number_of_hits > 0:
+            return filename
+    except EOFError:
+        pass
 
 
 def overlap_creator(elem):
@@ -61,41 +64,39 @@ def run_my_shit():
     k_inputs = [filename for filename in os.listdir(kinase_input_dir)]
     a_inputs = [filename for filename in os.listdir(axis_input_dir)]
 
-    pool = mp.Pool(processes=16)
+    pool = mp.Pool(processes=4)
 
     kinase_list = pool.map(kinase_processor, k_inputs)
-    print(kinase_list)
+    print("klist: " + str(len(kinase_list)))
 
     axis_list = pool.map(axis_processor, a_inputs)
-    print(axis_list)
+    print("alist: " + str(len(axis_list)))
 
-    oc_inputs = [elem for elem in axis_list]
-
-    print(oc_inputs)
-
-    # overlap_list = pool.map(overlap_creator, oc_inputs)
+    kinase_set = set(kinase_list)
+    print("kset: " + str(len(kinase_set)))
 
     hitcount = 0
-    for hit in oc_inputs:
-        overlap_list.append(overlap_creator(hit))
+    for elem in axis_list:
+        if elem is not None and elem in kinase_set:
+            overlap_list.append(elem)
         hitcount += 1
-        if hitcount % 1000 == 0:
+        if hitcount % 10000 == 0:
             print("ocbuild " + str(hitcount))
 
-    print(overlap_list)
+    print("olist: " + str(len(overlap_list)))
 
     ocount = 0
 
     for filename in overlap_list:
         overlap_processor(filename)
         ocount += 1
-        if ocount % 1000 == 0:
+        if ocount % 10000 == 0:
             print("ovprcess " + str(ocount))
 
     with open(output_file, 'wb') as output_file:
         pickle.dump(results_dict, output_file, pickle.HIGHEST_PROTOCOL)
 
-    print(results_dict)
+    print("dict length: " + str(len(results_dict)))
 
     current_file = axis_input_dir
     print(current_file)

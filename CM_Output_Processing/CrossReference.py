@@ -5,9 +5,9 @@ import os
 import AnnotatedArticle as aa
 import pickle
 
-kinase_input_dir = '/data/CM_output/Comparison_FT/Kinases/Combined/Post-Processed/BP'
-axis_input_dirs = ['/data/CM_output/Comparison_FT/Ontologies/Combined/Post-Processed/BP/GO']
-output_file = '/data/CM_output/FT/Post-Processed/All/test.pkl'
+kinase_input_dir = '/data/CM_output/FT/Post-Processed/All/GO'
+axis_input_dirs = ['/data/CM_output/Abst/Post-Processed/BandT/HP']
+output_file = '/data/CM_output/Abst/Post-Processed/BandT/Abs_BandT_HP_REG.pkl'
 #del axis_input_dirs[0]
 kinase_list = []
 axis_list = []
@@ -25,7 +25,7 @@ for filename in os.listdir(kinase_input_dir):
     if obj.number_of_hits > 0:
         kinase_list.append(filename)
     kcount += 1
-    if kcount % 10 == 0:
+    if kcount % 10000 == 0:
         print("kinase " + str(kcount))
 
 
@@ -37,7 +37,7 @@ for i in range(0, len(axis_input_dirs)):
     temp_count = 0
     for filename in os.listdir(axis_input_dirs[i]):
         counter += 1
-        if counter % 10 == 0:
+        if counter % 10000 == 0:
             print("axis " + str(counter))
         obj = load_obj(axis_input_dirs[i] + "/" + filename)
         if obj.number_of_hits > 0:
@@ -47,13 +47,12 @@ for i in range(0, len(axis_input_dirs)):
     print("TEMP: " + str(temp_count))
 
     overlap_list = [elem for elem in axis_list if elem in kinase_list]
-    print(overlap_list)
 
     results_dict = {}
     ocount = 0
     for filename in overlap_list:
         ocount += 1
-        if ocount % 10 == 0:
+        if ocount % 10000 == 0:
             print("overlap " + str(ocount))
         pmcid = filename.strip('.txt.xmi.pkl')
         obj = load_obj(kinase_input_dir + "/" + filename)
@@ -66,7 +65,7 @@ for i in range(0, len(axis_input_dirs)):
     with open(output_file, 'wb') as output_file:
         pickle.dump(results_dict, output_file, pickle.HIGHEST_PROTOCOL)
 
-    print(results_dict)
+    print(len(results_dict))
 
     current_file = axis_input_dirs[i]
     print(current_file)

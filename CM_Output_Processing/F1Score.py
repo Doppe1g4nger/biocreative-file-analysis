@@ -5,8 +5,8 @@ import os
 import AnnotatedArticle as aa
 import pickle
 
-kinase_input_dir = '/data/CM_output/FT/Post-Processed/All/Kinase_BP_Test'
-axis_input_dirs = ['/data/CM_output/FT/Post-Processed/All/GO', '/data/CM_output/FT/Post-Processed/All/GO-old']
+kinase_input_dir = '/data/CM_output/Comparison_FT/Kinases/Combined/Post-Processed/DictCompare/DIS_W_SAMAO'
+axis_input_dirs = ['/data/CM_output/Comparison_FT/Ontologies/Combined/Post-Processed/DIS/NCIT-Restricted', '/data/CM_output/Comparison_FT/Ontologies/Combined/Post-Processed/DIS/HP']
 labeled_positives_dir = '/data/TrainingCanonicalNames_ToDocID_dicts/DIS_ft_train_canon_to_docid_dict.pkl'
 #del axis_input_dirs[0]
 kinase_list = []
