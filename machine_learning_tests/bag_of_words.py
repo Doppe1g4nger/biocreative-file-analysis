@@ -25,7 +25,7 @@ if __name__ == "__main__":
     config = configparser.ConfigParser()
     config.read(sys.argv[1])
     arguments = config["DEFAULT"]
-    for key, value in arguments:
+    for key in arguments:
         arguments[key] = helpers.replace_pathvar_with_environ(arguments[key])
     # Get file names of training and random sets, vectorizers can read these in themselves
     if arguments["training_type"] == "pkl":
