@@ -4,6 +4,7 @@ import os
 import AnnotatedArticle as aa
 import pickle
 import multiprocessing as mp
+import random
 
 
 def load_obj(name):
@@ -19,7 +20,7 @@ kinase_tokens = []
 metric_dict = {}
 
 pred_dict = load_obj(predicted_dictionary_input)
-# wc_dict = load_obj(word_count_dictionary_input)
+wc_dict = load_obj(word_count_dictionary_input)
 
 
 for kinase in pred_dict:
@@ -27,6 +28,11 @@ for kinase in pred_dict:
         for doc in pred_dict[kinase]:
             axis_AA = load_obj(axis_input_dir + "/" + doc + ".txt.xmi.pkl")
             kinase_AA = load_obj(kinase_input_dir + "/" + doc + ".txt.xmi.pkl")
+
+            k_score = kinase_AA.counter_of_hit_terms[kinase] / wc_dict[doc]
+            a_score = axis_AA.number_of_hits / wc_dict[doc]
+            kaw_score = a_score * k_score
+
             axis_tokens = []
             kinase_tokens = []
             axis_attribs = axis_AA.list_of_attrib_dicts
@@ -45,9 +51,9 @@ for kinase in pred_dict:
                         min_proximity = dist
             # print(doc + ": " + str(min_proximity))
             try:
-                metric_dict[kinase].append([doc, min_proximity])
+                metric_dict[kinase].append([doc, min_proximity, k_score, a_score, kaw_score])
             except KeyError:
-                metric_dict[kinase] = [[doc, min_proximity]]
-            # print(metric_dict)
+                metric_dict[kinase] = [[doc, min_proximity, k_score, a_score, kaw_score]]
+            print(metric_dict)
     except EOFError:
         pass
