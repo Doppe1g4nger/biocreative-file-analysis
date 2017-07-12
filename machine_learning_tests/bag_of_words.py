@@ -1,3 +1,5 @@
+from sklearn.feature_extraction.text import HashingVectorizer
+from sklearn.feature_extraction.text import TfidfTransformer
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.model_selection import cross_val_score
 from sklearn.neighbors import KNeighborsClassifier
@@ -5,24 +7,12 @@ from sklearn.naive_bayes import MultinomialNB
 from sklearn.externals import joblib
 from sklearn.svm import SVC
 from timeit import default_timer
+from scipy.sparse import vstack
 import helper_functions as helpers
+import multiprocessing
 import configparser
 import pickle
 import sys
-import os
-
-
-def replace_var_with_environ(string):
-    path_var_start = string.find("$")
-    if path_var_start != -1:
-        path_slice = string[path_var_start:string.find("/", path_var_start)]
-    else:
-        return string
-    try:
-        path_replacement = os.environ[path_slice[1:]]
-        return string.replace(path_slice, path_replacement)
-    except:
-        raise
 
 
 def get_set_from_pickle(f_path):
@@ -35,23 +25,25 @@ if __name__ == "__main__":
     config = configparser.ConfigParser()
     config.read(sys.argv[1])
     arguments = config["DEFAULT"]
+    for key, value in arguments:
+        arguments[key] = helpers.replace_pathvar_with_environ(arguments[key])
     # Get file names of training and random sets, vectorizers can read these in themselves
     if arguments["training_type"] == "pkl":
-        training_id_set = get_set_from_pickle(replace_var_with_environ(arguments["training_pkl"]))
+        training_id_set = get_set_from_pickle(arguments["training_pkl"])
         training_text_files = [
-            file for file in helpers.get_all_files(replace_var_with_environ(arguments["training_source"]))
+            file for file in helpers.get_all_files(arguments["training_source"])
             if file.split("/")[-1].strip(".txt") in training_id_set
         ]
     else:
-        training_text_files = helpers.get_all_files(replace_var_with_environ(guments["training_source"]))
+        training_text_files = helpers.get_all_files(arguments["training_source"])
     if arguments["random_type"] == "pkl":
-        random_id_set = get_set_from_pickle(replace_var_with_environ(arguments["random_pkl"]))
+        random_id_set = get_set_from_pickle(arguments["random_pkl"])
         random_text_files = [
-            file for file in helpers.get_all_files(replace_var_with_environ(arguments["random_source"]))
+            file for file in helpers.get_all_files(arguments["random_source"])
             if file.split("/")[-1].strip(".txt") in random_id_set
         ]
     else:
-        random_text_files = helpers.get_all_files(replace_var_with_environ(arguments["random_source"]))
+        random_text_files = helpers.get_all_files(arguments["random_source"])
 
     # random_text_files = [file for file in random_text_files if file not in training_text_files]
     # print(len(random_text_files))
@@ -62,29 +54,32 @@ if __name__ == "__main__":
     # Generate label group of 1's and 0's for training data
     labels = [1 for i in range(len(training_text_files))] + [0 for i in range(len(random_text_files))]
     if arguments["preexisting_fv_path"]:
-        tf_idf_features = joblib.load(replace_var_with_environ(arguments["preexisting_fv_path"]))
-        fv_path = replace_var_with_environ(arguments["preexisting_fv_path"])
+        tf_idf_features = joblib.load(arguments["preexisting_fv_path"])
+        fv_path = arguments["preexisting_fv_path"]
     else:
         if not arguments["new_fv_path"]:
             raise ValueError(
                 "No preexisting or new feature vector file paths have been given in {} .".format(sys.argv[1])
             )
-        fv_path = replace_var_with_environ(arguments["new_fv_path"])
+        fv_path = arguments["new_fv_path"]
         basic_vectorizer = TfidfVectorizer(
-            input="filename", strip_accents="unicode", stop_words="english"
+            input="filename", strip_accents="unicode", stop_words="english",
+
         )
         start = default_timer()
         tf_idf_features = basic_vectorizer.fit_transform(all_files)
         stop = default_timer()
-        joblib.dump(basic_vectorizer, replace_var_with_environ(arguments["vectorizer"]))
-        joblib.dump(tf_idf_features, replace_var_with_environ(arguments["new_fv_path"]))
-        time_to_vectorize = (stop - start) / 60
+        joblib.dump(basic_vectorizer, arguments["vectorizer"])
+        joblib.dump(tf_idf_features, arguments["new_fv_path"])
+        time_to_tfidf = (stop - start) / 60
         helpers.send_email(
             sender="danieldopp@outlook.com",
             password=arguments["email_pass"],
             receivers=["danieldopp@outlook.com"],
             subject=fv_path.split("/")[-1] + " Finished Processing",
-            message="Processing completed in {num_mins} minutes".format(num_mins=time_to_vectorize),
+            message="Processing completed in {num_mins} minutes".format(num_mins=time_to_tfidf)
+                    + "\nTime to TFIDF: {tfidf_time}".format(tfidf_time=time_to_tfidf),
+
         )
     classifiers = [
         ("MNNB", MultinomialNB()),
@@ -104,7 +99,7 @@ if __name__ == "__main__":
         clf.fit(tf_idf_features, labels)
         stop = default_timer()
         fit_time = (stop - start) / 60
-        joblib.dump(clf, replace_var_with_environ(arguments["new_" + clf_name + "_classifier_path"]))
+        joblib.dump(clf, arguments["new_" + clf_name + "_classifier_path"])
         helpers.send_email(
             sender="danieldopp@outlook.com",
             password=arguments["email_pass"],
