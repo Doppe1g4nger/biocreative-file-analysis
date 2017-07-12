@@ -63,6 +63,7 @@ if __name__ == "__main__":
         fv_path = arguments["new_fv_path"]
         basic_hash_vectorizer = HashingVectorizer(
             input="filename", strip_accents="unicode", stop_words="english", n_features=2**20,
+            non_negative = True
 
         )
         start_h = default_timer()
