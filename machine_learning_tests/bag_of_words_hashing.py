@@ -7,6 +7,7 @@ from sklearn.externals import joblib
 from sklearn.svm import SVC
 from timeit import default_timer
 from scipy.sparse import vstack
+from scipy.sparse import csc_matrix
 import helper_functions as helpers
 import multiprocessing
 import configparser
@@ -52,6 +53,10 @@ if __name__ == "__main__":
     all_files = training_text_files + random_text_files
     # Generate label group of 1's and 0's for training data
     labels = [1 for i in range(len(training_text_files))] + [0 for i in range(len(random_text_files))]
+    # del training_id_set
+    # del training_text_files
+    # del random_id_set
+    # del random_text_files
     if arguments["preexisting_fv_path"]:
         tf_idf_features = joblib.load(arguments["preexisting_fv_path"])
         fv_path = arguments["preexisting_fv_path"]
@@ -69,11 +74,12 @@ if __name__ == "__main__":
         start_h = default_timer()
         with multiprocessing.Pool() as p:
             feature_list = p.map(basic_hash_vectorizer.fit_transform, [[file] for file in all_files])
-            features = vstack(feature_list)
+            features = csc_matrix(vstack(feature_list))
         stop_h = default_timer()
         tfidf = TfidfTransformer()
         start = default_timer()
-        tf_idf_features = tfidf.fit_transform(features)
+        tf_idf_features = csc_matrix(tfidf.fit_transform(features))
+        print(sys.getsizeof(tf_idf_features), type(tf_idf_features))
         stop = default_timer()
         joblib.dump((basic_hash_vectorizer, tfidf), arguments["vectorizer"])
         joblib.dump(tf_idf_features, arguments["new_fv_path"])
@@ -89,6 +95,8 @@ if __name__ == "__main__":
                     + "\nTime to TFIDF: {tfidf_time}".format(tfidf_time=time_to_tfidf),
 
         )
+    for var in dir():
+        exec('print(var, sys.getsizeof(' + var + ", -1))")
     classifiers = [
         ("MNNB", MultinomialNB()),
         ("SVM", SVC(probability=True)),
@@ -104,7 +112,7 @@ if __name__ == "__main__":
         cross_val_time = (stop - start) / 60
         auroc = sum(scores) / len(scores)
         start = default_timer()
-        clf.fit(tf_idf_features, labels)
+        clf.fit(tf_idf_features, labels).sparsify()
         stop = default_timer()
         fit_time = (stop - start) / 60
         joblib.dump(clf, arguments["new_" + clf_name + "_classifier_path"])
