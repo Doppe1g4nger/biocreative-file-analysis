@@ -7,7 +7,6 @@ from sklearn.externals import joblib
 from sklearn.svm import SVC
 from timeit import default_timer
 from scipy.sparse import vstack
-from scipy.sparse import csc_matrix
 import helper_functions as helpers
 import multiprocessing
 import configparser
@@ -23,8 +22,8 @@ def get_set_from_pickle(f_path):
 if __name__ == "__main__":
     # Read in ini formatted config file passed as command line argument
     config = configparser.ConfigParser()
-    config.read(sys.argv[1])
-    arguments = config["DEFAULT"]
+    config.read("./config.ini")
+    arguments = config[sys.argv[2]]
     for key in arguments:
         arguments[key] = helpers.replace_pathvar_with_environ(arguments[key])
     # Get file names of training and random sets, vectorizers can read these in themselves
@@ -47,16 +46,12 @@ if __name__ == "__main__":
 
     # random_text_files = [file for file in random_text_files if file not in training_text_files]
     # print(len(random_text_files))
-    print(training_text_files[:5], len(training_text_files))
-    print(random_text_files[:5], len(random_text_files))
+    # print(training_text_files[:5], len(training_text_files))
+    # print(random_text_files[:5], len(random_text_files))
 
     all_files = training_text_files + random_text_files
     # Generate label group of 1's and 0's for training data
     labels = [1 for i in range(len(training_text_files))] + [0 for i in range(len(random_text_files))]
-    # del training_id_set
-    # del training_text_files
-    # del random_id_set
-    # del random_text_files
     if arguments["preexisting_fv_path"]:
         tf_idf_features = joblib.load(arguments["preexisting_fv_path"])
         fv_path = arguments["preexisting_fv_path"]
@@ -68,22 +63,26 @@ if __name__ == "__main__":
         fv_path = arguments["new_fv_path"]
         basic_hash_vectorizer = HashingVectorizer(
             input="filename", strip_accents="unicode", stop_words="english", n_features=2**20,
-            non_negative = True
+            non_negative=True
 
         )
         start_h = default_timer()
         with multiprocessing.Pool() as p:
             feature_list = p.map(basic_hash_vectorizer.fit_transform, [[file] for file in all_files])
-            features = csc_matrix(vstack(feature_list))
+            features = vstack(feature_list)
         stop_h = default_timer()
         tfidf = TfidfTransformer()
         start = default_timer()
-        tf_idf_features = csc_matrix(tfidf.fit_transform(features))
+        tf_idf_features = tfidf.fit_transform(features)
         print(sys.getsizeof(tf_idf_features), type(tf_idf_features))
         stop = default_timer()
         joblib.dump((basic_hash_vectorizer, tfidf), arguments["vectorizer"])
         joblib.dump(tf_idf_features, arguments["new_fv_path"])
         time_to_hash = (stop_h - start_h) / 60
+        arguments["preexisting_fv"] = arguments["new_fv_path"]
+        arguments["new_fv_path"] = ""
+        with open(sys.argv[1]) as config_file:
+            config.write(config_file)
         time_to_tfidf = (stop - start) / 60
         helpers.send_email(
             sender="danieldopp@outlook.com",
@@ -95,8 +94,8 @@ if __name__ == "__main__":
                     + "\nTime to TFIDF: {tfidf_time}".format(tfidf_time=time_to_tfidf),
 
         )
-    for var in dir():
-        exec('print(var, sys.getsizeof(' + var + ", -1))")
+    # for var in dir():
+    #     exec('print(var, sys.getsizeof(' + var + ", -1))")
     classifiers = [
         ("MNNB", MultinomialNB()),
         ("SVM", SVC(probability=True)),
