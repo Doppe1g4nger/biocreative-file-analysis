@@ -25,7 +25,7 @@ if __name__ == "__main__":
     # Read in ini formatted config file passed as command line argument
     config = configparser.ConfigParser()
     config.read("./config.ini")
-    arguments = config[sys.argv[2]]
+    arguments = config[sys.argv[1]]
     for key in arguments:
         arguments[key] = helpers.replace_pathvar_with_environ(arguments[key])
     # Get file names of training and random sets, vectorizers can read these in themselves
