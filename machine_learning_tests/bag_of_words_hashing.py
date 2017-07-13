@@ -12,8 +12,7 @@ from sklearn.model_selection import cross_val_score
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
-
-from machine_learning_tests import helper_functions as helpers
+import helper_functions as helpers
 
 
 def get_set_from_pickle(f_path):
@@ -24,7 +23,11 @@ def get_set_from_pickle(f_path):
 if __name__ == "__main__":
     # Read in ini formatted config file passed as command line argument
     config = configparser.ConfigParser()
-    config.read("./config.ini")
+    config.read(
+        helpers.replace_pathvar_with_environ(
+            "$HOME/biocreative-file-analysis/machine_learning_tests/config.ini"
+        )
+    )
     arguments = config[sys.argv[1]]
     for key in arguments:
         arguments[key] = helpers.replace_pathvar_with_environ(arguments[key])
