@@ -1,17 +1,19 @@
+import configparser
+import multiprocessing
+import pickle
+import sys
+from timeit import default_timer
+
+from scipy.sparse import vstack
+from sklearn.externals import joblib
 from sklearn.feature_extraction.text import HashingVectorizer
 from sklearn.feature_extraction.text import TfidfTransformer
 from sklearn.model_selection import cross_val_score
-from sklearn.neighbors import KNeighborsClassifier
 from sklearn.naive_bayes import MultinomialNB
-from sklearn.externals import joblib
+from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
-from timeit import default_timer
-from scipy.sparse import vstack
-import helper_functions as helpers
-import multiprocessing
-import configparser
-import pickle
-import sys
+
+from machine_learning_tests import helper_functions as helpers
 
 
 def get_set_from_pickle(f_path):

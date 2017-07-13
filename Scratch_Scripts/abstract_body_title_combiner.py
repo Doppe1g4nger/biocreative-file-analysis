@@ -1,5 +1,4 @@
-import helper_functions as h
-
+from machine_learning_tests import helper_functions as h
 
 if __name__ == "__main__":
     for file in h.get_all_files('/data/CM_input/Abst/Abst_Titles'):

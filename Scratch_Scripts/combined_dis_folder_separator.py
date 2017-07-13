@@ -1,5 +1,6 @@
 import pickle
-from helper_functions import get_all_files
+
+from machine_learning_tests.helper_functions import get_all_files
 
 if __name__ == "__main__":
     full_training = set()
