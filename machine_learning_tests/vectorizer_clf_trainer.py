@@ -115,7 +115,7 @@ if __name__ == "__main__":
                         + "\nTime to TFIDF: {tfidf_time}".format(tfidf_time=time_to_tfidf),
 
             )
-        arguments["preexisting_fv"] = copy.deepcopy(arguments["new_fv_path"])
+        arguments["preexisting_fv_path"] = copy.deepcopy(arguments["new_fv_path"])
         arguments["new_fv_path"] = ""
         with open("/home/ddopp/biocreative-file-analysis/machine_learning_tests/config.ini", "w") as config_file:
             config.write(config_file)
