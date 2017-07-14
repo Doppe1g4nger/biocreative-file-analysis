@@ -9,6 +9,7 @@ from scipy.sparse import vstack
 from sklearn.externals import joblib
 from sklearn.feature_extraction.text import HashingVectorizer
 from sklearn.feature_extraction.text import TfidfTransformer
+from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.model_selection import cross_val_score
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.neighbors import KNeighborsClassifier
@@ -68,38 +69,56 @@ if __name__ == "__main__":
         all_files = training_text_files + random_text_files
         # Generate label group of 1's and 0's for training data
         labels = [1 for i in range(len(training_text_files))] + [0 for i in range(len(random_text_files))]
-        basic_hash_vectorizer = HashingVectorizer(
-            input="filename", strip_accents="unicode", stop_words="english", n_features=2**20,
-            non_negative=True
+        if arguments["use_hashing"].getboolean():
+            vectorizer = HashingVectorizer(
+                input="filename", strip_accents="unicode", stop_words="english", n_features=2**20,
+                non_negative=True
 
-        )
-        start_h = default_timer()
-        with multiprocessing.Pool() as p:
-            feature_list = p.map(basic_hash_vectorizer.fit_transform, [[file] for file in all_files])
-            features = vstack(feature_list)
-        stop_h = default_timer()
-        tfidf = TfidfTransformer()
-        start = default_timer()
-        tf_idf_features = tfidf.fit_transform(features)
-        stop = default_timer()
-        joblib.dump((basic_hash_vectorizer, tfidf), arguments["vectorizer"])
-        joblib.dump((labels, tf_idf_features), arguments["new_fv_path"])
-        time_to_hash = (stop_h - start_h) / 60
-        time_to_tfidf = (stop - start) / 60
+            )
+            start_h = default_timer()
+            with multiprocessing.Pool() as p:
+                feature_list = p.map(vectorizer.fit_transform, [[file] for file in all_files])
+                features = vstack(feature_list)
+            stop_h = default_timer()
+            tfidf = TfidfTransformer()
+            start = default_timer()
+            tf_idf_features = tfidf.fit_transform(features)
+            stop = default_timer()
+            joblib.dump((vectorizer, tfidf), arguments["vectorizer"])
+            joblib.dump((labels, tf_idf_features), arguments["new_fv_path"])
+            time_to_hash = (stop_h - start_h) / 60
+            time_to_tfidf = (stop - start) / 60
+            helpers.send_email(
+                sender="danieldopp@outlook.com",
+                password=arguments["email_pass"],
+                receivers=["danieldopp@outlook.com"],
+                subject=fv_path.split("/")[-1] + " Finished Processing",
+                message="Processing completed in {num_mins} minutes".format(num_mins=time_to_tfidf + time_to_hash)
+                        + "\nTime to Hash: {hash_time}".format(hash_time=time_to_hash)
+                        + "\nTime to TFIDF: {tfidf_time}".format(tfidf_time=time_to_tfidf),
+
+            )
+        else:
+            vectorizer = TfidfVectorizer()
+            start = default_timer()
+            tf_idf_features = vectorizer.fit_transform(all_files)
+            stop = default_timer()
+            joblib.dump((vectorizer, None), arguments["vectorizer"])
+            joblib.dump((labels, tf_idf_features), arguments["new_fv_path"])
+            time_to_tfidf = (stop - start) / 60
+            helpers.send_email(
+                sender="danieldopp@outlook.com",
+                password=arguments["email_pass"],
+                receivers=["danieldopp@outlook.com"],
+                subject=fv_path.split("/")[-1] + " Finished Processing",
+                message="Processing completed in {num_mins} minutes".format(num_mins=time_to_tfidf)
+                        + "\nTime to TFIDF: {tfidf_time}".format(tfidf_time=time_to_tfidf),
+
+            )
         arguments["preexisting_fv"] = copy.deepcopy(arguments["new_fv_path"])
         arguments["new_fv_path"] = ""
         with open("/home/ddopp/biocreative-file-analysis/machine_learning_tests/config.ini", "w") as config_file:
             config.write(config_file)
-        helpers.send_email(
-            sender="danieldopp@outlook.com",
-            password=arguments["email_pass"],
-            receivers=["danieldopp@outlook.com"],
-            subject=fv_path.split("/")[-1] + " Finished Processing",
-            message="Processing completed in {num_mins} minutes".format(num_mins=time_to_tfidf + time_to_hash)
-                    + "\nTime to Hash: {hash_time}".format(hash_time=time_to_hash)
-                    + "\nTime to TFIDF: {tfidf_time}".format(tfidf_time=time_to_tfidf),
-
-        )
     # for var in dir():
     #     exec('print(var, sys.getsizeof(' + var + ", -1))")
     classifiers = [
