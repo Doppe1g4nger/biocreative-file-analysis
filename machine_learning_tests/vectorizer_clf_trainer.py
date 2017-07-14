@@ -69,7 +69,7 @@ if __name__ == "__main__":
         all_files = training_text_files + random_text_files
         # Generate label group of 1's and 0's for training data
         labels = [1 for i in range(len(training_text_files))] + [0 for i in range(len(random_text_files))]
-        if arguments["use_hashing"].getboolean():
+        if arguments.getboolean('use_hashing'):
             vectorizer = HashingVectorizer(
                 input="filename", strip_accents="unicode", stop_words="english", n_features=2**20,
                 non_negative=True
