@@ -47,7 +47,7 @@ if __name__ == "__main__":
                             "dummy", item[0],
                             str(count),
                             str(item[1] * 100),
-                            arguments["runid"],
+                            arguments["run_id"],
                             "\n"
                         ]
                     )
