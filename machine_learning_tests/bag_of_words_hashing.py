@@ -24,9 +24,7 @@ if __name__ == "__main__":
     # Read in ini formatted config file passed as command line argument
     config = configparser.ConfigParser()
     config.read(
-        helpers.replace_pathvar_with_environ(
-            "$HOME/biocreative-file-analysis/machine_learning_tests/config.ini"
-        )
+        "/home/ddopp/biocreative-file-analysis/machine_learning_tests/config.ini"
     )
     arguments = config[sys.argv[1]]
     for key in arguments:
@@ -79,14 +77,13 @@ if __name__ == "__main__":
         tfidf = TfidfTransformer()
         start = default_timer()
         tf_idf_features = tfidf.fit_transform(features)
-        print(sys.getsizeof(tf_idf_features), type(tf_idf_features))
         stop = default_timer()
         joblib.dump((basic_hash_vectorizer, tfidf), arguments["vectorizer"])
         joblib.dump(tf_idf_features, arguments["new_fv_path"])
         time_to_hash = (stop_h - start_h) / 60
         arguments["preexisting_fv"] = arguments["new_fv_path"]
         arguments["new_fv_path"] = ""
-        with open(sys.argv[1]) as config_file:
+        with open("/home/ddopp/biocreative-file-analysis/machine_learning_tests/config.ini", "w") as config_file:
             config.write(config_file)
         time_to_tfidf = (stop - start) / 60
         helpers.send_email(

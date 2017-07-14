@@ -27,11 +27,11 @@ def input_true_or_false(user_input, true_cond={"y"}):
 def replace_pathvar_with_environ(string):
     path_var_start = string.find("$")
     if path_var_start != -1:
-        path_slice = string[path_var_start + 1:string.find("/", path_var_start)]
+        path_slice = string[path_var_start:string.find("/", path_var_start)]
     else:
         return string
     try:
-        path_replacement = os.environ[path_slice]
+        path_replacement = os.environ[path_slice[1:]]
         return replace_pathvar_with_environ(string.replace(path_slice, path_replacement))
     except:
         raise
