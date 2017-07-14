@@ -1,19 +1,21 @@
 import pickle
 from lxml import etree
+from collections import defaultdict
 
 
 def write_to_xml(kinase_dict, f_name):
     """
-
     :param kinase_dict: dictionary, of kinase id mapped to list of kinase names
     :param f_name: string, file name
+    :param canonical: string, canonical name
     :return: None
     """
     root = etree.Element("synonym")
     for key in kinase_dict:
-        token = etree.SubElement(root, "token", id=key,
-                                 canonical=kinase_dict[key][0]
-                                 )
+        token = etree.SubElement(
+            root, "token", id=key,
+            canonical=kinase_dict[key][0]
+        )
         token.append(etree.Element("variant", base=key))
         for synonym in kinase_dict[key]:
             if synonym is not None:
@@ -45,60 +47,43 @@ def print_dict(dictionary):
             if item is None:
                 print(key, value)
 
-
 if __name__ == "__main__":
-    # Load the 8 dictionaries, assignments are fixing broken None items in the dictionaries
-    bp_training_dict = load_obj(
-        r"C:\Users\Danie\Downloads\Training-Test Data Dictionaries\BP\BP_train_detail.pkl")
-    bp_training_dict["NX_Q16654"][2] = r"[Pyruvate dehydrogenase (acetyl-transferring)] kinase isozyme 4, mitochondrial"
-    bp_training_ft_dict = load_obj(
-        r"C:\Users\Danie\Downloads\Training-Test Data Dictionaries\BP\BP_train_detail_ft.pkl")
-    bp_test_dict = load_obj(
-        r"C:\Users\Danie\Downloads\Training-Test Data Dictionaries\BP\BP_test_detail.pkl")
-    bp_test_dict["NX_Q15349"][3] = r"Ribosomal protein S6 kinase alpha-2"
-    bp_test_ft_dict = load_obj(
-        r"C:\Users\Danie\Downloads\Training-Test Data Dictionaries\BP\BP_test_detail_ft.pkl")
-    dis_training_dict = load_obj(
-        r"C:\Users\Danie\Downloads\Training-Test Data Dictionaries\DIS\DIS_train_detail.pkl")
-    dis_training_dict["NX_Q16654"][2] = r"[Pyruvate dehydrogenase (acetyl-transferring)] kinase isozyme 4, mitochondrial"
-    dis_training_ft_dict = load_obj(
-        r"C:\Users\Danie\Downloads\Training-Test Data Dictionaries\DIS\DIS_train_detail_ft.pkl")
-    dis_test_dict = load_obj(
-        r"C:\Users\Danie\Downloads\Training-Test Data Dictionaries\DIS\DIS_test_detail.pkl")
-    dis_test_dict["NX_Q15119"][2] = r"[Pyruvate dehydrogenase (acetyl-transferring)] kinase isozyme 2, mitochondrial"
-    dis_test_ft_dict = load_obj(
-        r"C:\Users\Danie\Downloads\Training-Test Data Dictionaries\DIS\DIS_test_detail_ft.pkl")
-    # Write each dictionary to its ConceptMapper XML format
-    write_to_xml(bp_training_dict, r"C:\Users\Danie\Downloads\bp_training_abs.xml")
-    write_to_xml(bp_training_ft_dict, r"C:\Users\Danie\Downloads\bp_training_ft.xml")
-    write_to_xml(bp_test_dict, r"C:\Users\Danie\Downloads\bp_test_abs.xml")
-    write_to_xml(bp_test_ft_dict, r"C:\Users\Danie\Downloads\bp_test_ft.xml")
-    write_to_xml(dis_test_dict, r"C:\Users\Danie\Downloads\dis_test_abs.xml")
-    write_to_xml(dis_test_ft_dict, r"C:\Users\Danie\Downloads\dis_test_ft.xml")
-    write_to_xml(dis_training_dict, r"C:\Users\Danie\Downloads\dis_training_abs.xml")
-    write_to_xml(dis_training_ft_dict, r"C:\Users\Danie\Downloads\dis_training_ft.xml")
-    # Concatenate training dictionaries and write to XML
-    all_training_dict = dict(bp_training_dict)
-    all_training_dict.update(bp_training_ft_dict)
-    all_training_dict.update(dis_training_ft_dict)
-    all_training_dict.update(dis_training_dict)
-    write_to_xml(all_training_dict, r"C:\Users\Danie\Downloads\all_training.xml")
-    # Concatenate test dictionaries and write to XML
-    all_test_dict = dict(bp_test_dict)
-    all_test_dict.update(bp_test_ft_dict)
-    all_test_dict.update(dis_test_ft_dict)
-    all_test_dict.update(dis_test_dict)
-    write_to_xml(all_test_dict, r"C:\Users\Danie\Downloads\all_test.xml")
-    # Concatenate everything and write to XML
-    all_kinases = dict(all_training_dict)
-    all_kinases.update(all_test_dict)
-    write_to_xml(all_kinases, r"C:\Users\Danie\Downloads\all_kinases.xml")
-    # print(len(all_kinases))
-    # print_dict(bp_training_ft_dict)
-    # print_dict(bp_test_ft_dict)
-    # print_dict(bp_test_dict)
-    # print_dict(bp_training_dict)
-    # print_dict(dis_training_dict)
-    # print_dict(dis_training_ft_dict)
-    # print_dict(dis_test_ft_dict)
-    # print_dict(dis_test_dict)
+    kinase_map = defaultdict(list)
+    f = input("Give path to xml kinase synonym file: ")
+    while f != "q":
+        root = etree.parse(f)
+        for topic in root.iter("topic"):
+            syns = set()
+            kinase_id = ""
+            primary = ""
+            count = 0
+            prim_cnt = 0
+            if not topic.iter("id"):
+                raise ValueError("OOPS")
+            for idx in topic.iter("id"):
+                kinase_id = idx.text
+                count += 1
+            if count != 1:
+                raise ValueError("OOPS")
+            for gene in topic.iter("gene"):
+                if gene.attrib["form"] == "primary":
+                    primary = gene.text
+                    prim_cnt += 1
+            if prim_cnt != 1:
+                raise ValueError("OOPS")
+            if not kinase_map[kinase_id]:
+                kinase_map[kinase_id].append(primary)
+            for syn in topic.iter():
+                if syn.tag in {"gene", "protein", "id"} and syn.text not in {primary, kinase_id} and syn.text not in kinase_map[kinase_id]:
+                    kinase_map[kinase_id].append(syn.text)
+                    syns.add(syn.text)
+        f = input("Give path to xml kinase synonym file: ")
+    write_to_xml(kinase_map, input("Give file name: "))
+
+
+
+
+
+
+
+
