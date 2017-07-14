@@ -36,8 +36,15 @@ if __name__ == "__main__":
                 if count == 30:
                     break
                 count += 1
-                outfile.write(" ".join(
-                    map(
-                        str, [canon_to_id[kinase], "dummy", item[0], count, item[1] * 100, arguments["runid"]]
+                outfile.write(
+                    " ".join(
+                        [
+                            canon_to_id[kinase],
+                            "dummy", item[0],
+                            str(count),
+                            str(item[1] * 100),
+                            arguments["runid"],
+                            "\n"
+                        ]
                     )
-                ) + "\n")
+                )
