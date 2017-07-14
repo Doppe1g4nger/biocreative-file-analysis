@@ -1,9 +1,9 @@
 import configparser
+import copy
 import multiprocessing
 import pickle
 import sys
 from timeit import default_timer
-import copy
 
 from scipy.sparse import vstack
 from sklearn.externals import joblib
@@ -14,10 +14,7 @@ from sklearn.model_selection import cross_val_score
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
-try:
-    from machine_learning_tests import helper_functions as helpers
-except ModuleNotFoundError:
-    import helper_functions as helpers
+import helper_functions as helpers
 
 
 def get_set_from_pickle(f_path):
