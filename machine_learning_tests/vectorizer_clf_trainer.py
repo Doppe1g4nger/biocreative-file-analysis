@@ -28,10 +28,8 @@ def get_set_from_pickle(f_path):
 if __name__ == "__main__":
     # Read in ini formatted config file passed as command line argument
     config = configparser.ConfigParser()
-    config.read(
-        "/home/ddopp/biocreative-file-analysis/machine_learning_tests/config.ini"
-    )
-    arguments = config[sys.argv[1]]
+    config.read(sys.argv[1])
+    arguments = config[sys.argv[2]]
     for key in arguments:
         arguments[key] = helpers.replace_pathvar_with_environ(arguments[key])
     if arguments["preexisting_fv_path"]:
@@ -99,7 +97,7 @@ if __name__ == "__main__":
 
             )
         else:
-            vectorizer = TfidfVectorizer()
+            vectorizer = TfidfVectorizer(strip_accents="unicode", stop_words="english", input="filename")
             start = default_timer()
             tf_idf_features = vectorizer.fit_transform(all_files)
             stop = default_timer()
@@ -132,6 +130,7 @@ if __name__ == "__main__":
             clf, tf_idf_features, labels,
             scoring="roc_auc", cv=5, n_jobs=-1,
         )
+        print(scores)
         stop = default_timer()
         cross_val_time = (stop - start) / 60
         auroc = sum(scores) / len(scores)
