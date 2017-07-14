@@ -14,7 +14,7 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
 try:
     from machine_learning_tests import helper_functions as helpers
-except:
+except ImportError:
     import helper_functions as helpers
 
 
