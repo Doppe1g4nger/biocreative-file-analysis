@@ -24,7 +24,7 @@ class BioCObject:
         """resets etree after function completion to allow for several consecutive functions"""
         self.tree = etree.iterparse(self.filename, events=("end",))
 
-    def print_analytics(self, output_file="Analytics.txt"):
+    def print_analytics(self, ouput_file="Analytics.txt"):
         """Prints a data analytics sheet to output_file
         Iterative, so only a small amount of RAM used"""
         for _, element in self.tree:
@@ -57,7 +57,7 @@ class BioCObject:
                 element.clear()
 
         # Write relevant data to file
-        with open(output_file, "w") as file:
+        with open(ouput_file, "w") as file:
             file.write("Number of documents in file:\n" + str(self.doc_count) + "\n\n")
             file.write("Sorted list of available infon types:\n")
             for inf_type in sorted(self.infon_types):
@@ -151,6 +151,35 @@ class BioCObject:
         self.rebuild()
         return value
 
+    def print_by_id(self, PMID):
+        """ Returns a specific quantity based on tag_text (the desired type) and PMID
+         To return the Abstract of PMID 18183754, for example, call collect_by_index("AbstractPassage", 18183754)
+         PMID can be entered with or without quotes"""
+        correct_index = False
+        value = ""
+        counter = 0
+
+        for _, element in self.tree:
+
+            if element.tag == "id":
+                counter += 1
+                if counter % 10000 == 0:
+                    print(counter)
+                if element.text == str(PMID):
+                    correct_index = True
+                else:
+                    if correct_index:
+                        break
+
+            elif correct_index:
+                print("Tag: " + str(element.tag))
+                print("Attribs: " + str(element.attrib))
+                print("Text: " + str(element.text) + "\n")
+
+            element.clear()
+        self.rebuild()
+        return value
+
     def titles(self):
         """ Returns a dictionary with {(PMID: Title), ...}
         This is a title specific shortcut of the collect_all function
@@ -178,7 +207,7 @@ class BioCObject:
     def abstracts(self):
         """ Returns a dictionary with {(PMID: Abstract), ...}
         This is an abstract specific shortcut of the collect_all function
-        primarily for abstracts_collection"""
+        primarily for abstacts_collection"""
         current_id = ""
         dict = {}
         collect_passage = False
@@ -194,6 +223,140 @@ class BioCObject:
             elif collect_passage and element.tag == "text":
                 dict[current_id] = element.text
                 collect_passage = False
+            element.clear()
+
+        self.rebuild()
+        return dict
+
+    def abstracts_to_directory(self, directory):
+        """ Returns a dictionary with {(PMID: Abstract), ...}
+        This is an abstract specific shortcut of the collect_all function
+        primarily for abstacts_collection"""
+        current_id = ""
+        dict = {}
+        collect_passage = False
+        acount = 0
+        dcount = 0
+
+        for _, element in self.tree:
+
+            if element.tag == "id" :
+                current_id = element.text
+                dcount += 1
+                if (dcount % 1000 == 0):
+                    print("Number of docs processed: " + str(dcount))
+
+            elif element.text == "AbstractPassage" or element.text == "abstract":
+                collect_passage = True
+
+            elif collect_passage and element.tag == "text":
+                f = open(directory + 'PMID'+ str(current_id) + '.txt', 'a')
+                f.write(element.text)
+                f.close()
+                collect_passage = False
+                acount += 1
+                if(acount % 1000 == 0):
+                    print("Number of abstacts processed: " + str(acount))
+            element.clear()
+
+        self.rebuild()
+        return dict
+
+    def abstracts_and_titles_to_directory(self, directory):
+        """ Returns a dictionary with {(PMID: Abstract), ...}
+        This is an abstract specific shortcut of the collect_all function
+        primarily for abstacts_collection"""
+        current_id = ""
+        dict = {}
+        collect_passage = False
+        acount = 0
+        dcount = 0
+
+        for _, element in self.tree:
+
+            if element.tag == "id":
+                if current_id != "":
+                    f.close()
+                current_id = element.text
+                f = open(directory + 'PMID' + str(current_id) + '.txt', 'a')
+                dcount += 1
+                if (dcount % 1000 == 0):
+                    print("Number of docs processed: " + str(dcount))
+
+            elif element.text == "AbstractPassage" or element.text == "TitlePassage":
+                collect_passage = True
+
+            elif collect_passage and element.tag == "text":
+                f.write(element.text)
+                f.write(' \n')
+                collect_passage = False
+                acount += 1
+                if(acount % 1000 == 0):
+                    print("Number of abstacts processed: " + str(acount))
+            element.clear()
+
+        self.rebuild()
+        return dict
+
+    def abstracts_empty(self):
+        """ Returns a dictionary with {(PMID: Abstract), ...}
+        This is an abstract specific shortcut of the collect_all function
+        primarily for abstacts_collection"""
+        current_id = ""
+        count = 0
+        hasAb = True
+        collect_passage = False
+
+        for _, element in self.tree:
+
+            if element.tag == "id":
+                if hasAb is False:
+                    return current_id
+
+                current_id = element.text
+                hasAb = False
+                count += 1
+                if (count % 10000 == 0):
+                    print("Number of documents processed: " + str(count))
+
+            elif element.text == "AbstractPassage" or element.text == "abstract":
+                collect_passage = True
+
+            elif collect_passage and element.tag == "text":
+                collect_passage = False
+                hasAb = True
+
+            element.clear()
+
+        self.rebuild()
+        return -1
+
+    def titles_to_directory(self, directory):
+        """ Returns a dictionary with {(PMID: Abstract), ...}
+        This is an abstract specific shortcut of the collect_all function
+        primarily for abstacts_collection"""
+        current_id = ""
+        dict = {}
+        collect_passage = False
+        count = 0
+
+        for _, element in self.tree:
+
+            if element.tag == "id":
+                if current_id != "":
+                    f.close()
+                current_id = element.text
+                f = open(directory + 'PMID' + str(current_id) + '.txt', 'a')
+
+            elif element.text == "TitlePassage" or element.text == "title":
+                collect_passage = True
+
+            elif collect_passage and element.tag == "text":
+                f.write(element.text)
+                collect_passage = False
+                count += 1
+                if (count % 10000 == 0):
+                    print("Number of documents processed: " + str(count))
             element.clear()
 
         self.rebuild()
@@ -248,14 +411,50 @@ class BioCObject:
                 current_id = element.text[3:]
 
             elif not collect_text and element.text == "paragraph":
-                collect_text = True
+                collect_text = True;
 
             elif collect_text and element.tag == "text":
                 try:
                     dict[current_id] += element.text
                 except KeyError:
                     dict[current_id] = element.text
+                collect_text = False;
+            element.clear()
+
+        self.rebuild()
+        return dict
+
+    def paragraphs_text_to_directory(self, directory):
+        """returns a dictionary of {(PMID: ParagraphText), ...}
+           Where ParagraphText text represents all paragraphs associated with that PMID concatenated together
+           designed for fulltext"""
+        current_id = ""
+        file_id = ""
+        dict = {}
+        collect_text = False
+        doc_count = 0
+
+        for _, element in self.tree:
+
+            if not collect_text and element.tag == "id":
+                if current_id != "":
+                    f.close()
+                    current_id = element.text[3:]
+                    f = open(directory + 'PMC' + str(current_id) + '.txt', 'a')
+                else:
+                    current_id = element.text[3:]
+                    f = open(directory + 'PMC' + str(current_id) + '.txt', 'a')
+                doc_count += 1
+                if doc_count % 1000 == 0:
+                    print("Number of documents processed: " + str(doc_count))
+
+            elif not collect_text and element.text == "paragraph":
+                collect_text = True
+
+            elif collect_text and element.tag == "text":
+                f.write(element.text)
                 collect_text = False
+
             element.clear()
 
         self.rebuild()
@@ -277,14 +476,59 @@ class BioCObject:
                 current_id = element.text[3:]
 
             elif not collect_text and element.text in list_of_relevant_tags:
-                collect_text = True
+                collect_text = True;
 
             elif collect_text and element.tag == "text":
                 try:
                     dict[current_id] += element.text
                 except KeyError:
                     dict[current_id] = element.text
+                collect_text = False;
+            elif include_keywords and element.attrib == {'key': 'kwd'}:
+                try:
+                    dict[current_id] += element.text
+                except KeyError:
+                    dict[current_id] = element.text
+
+            element.clear()
+
+        self.rebuild()
+        return dict
+
+    def full_docs_parser_to_directory(self, list_of_relevant_tags, include_keywords, directory):
+        """accepts a list of desired tags to include (list_of_relevant_tags),
+         and a boolean value or whether or not to include the keywords text for each document
+         returns a dictionary of {(PMID: BagOfText), ...}
+         Where BagOfText text represents all texts from all desires and keywords iff include_keywords = True
+         designed for fulltext"""
+        current_id = ""
+        dict = {}
+        collect_text = False
+        tcount = 0
+        dcount = 0
+
+        for _, element in self.tree:
+
+            if not collect_text and element.tag == "id":
+                if current_id != "":
+                    f.close()
+                current_id = element.text[3:]
+                f = open(directory + 'PMC' + str(current_id) + '.txt', 'a')
+                dcount += 1
+                if dcount % 1000 == 0:
+                    print("Number of documents processed: " + str(dcount))
+
+            elif not collect_text and element.text in list_of_relevant_tags:
+                collect_text = True
+
+            elif collect_text and element.tag == "text":
+                f.write(element.text)
+                f.write(' \n')
+                tcount += 1
+                if tcount % 1000 == 0:
+                    print("Number of tags processed: " + str(tcount))
                 collect_text = False
+
             elif include_keywords and element.attrib == {'key': 'kwd'}:
                 try:
                     dict[current_id] += element.text
@@ -316,11 +560,27 @@ class BioCObject:
         self.rebuild()
         return dict
 
-    def manual_iterator(self):
-        """
-        Returns iterative parser attribute of BioCObject class
-        Allows for manual iteration over BioC file and direct access to lxml.etree.iterparse()
-        :return: lxml iterparse object
-        """
-        return self.tree
+    def keywords_to_directory(self, directory):
+        """returns dictionary of {(PMID: keywords), ...}
+        where keywords is the group of text associated with the "kwd" infon tag
+        designed for fulltext"""
+        current_id = ""
+        dict = {}
+        count = 0
 
+        for _, element in self.tree:
+
+            if element.tag == "id":
+                current_id = element.text[3:]
+                f = open(directory + 'PMC' + str(current_id) + '.txt', 'a')
+
+            elif element.attrib == {'key': 'kwd'}:
+                f.write(element.text)
+                count += 1
+                if count % 1000 == 0:
+                    print("Number of documents processed: " + str(count))
+
+            element.clear()
+
+        self.rebuild()
+        return dict

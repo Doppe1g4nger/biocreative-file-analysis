@@ -9,8 +9,8 @@ import multiprocessing as mp
 import tqdm
 
 
-input_path = '/data/CM_output/Abst/BandT/GO-old'
-output_path = '/data/CM_output/Abst/Post-Processed/BandT/GO-old'
+input_path = '/data/CM_output/FT/All/Kinase_DIS_Test'
+output_path = '/data/CM_output/FT/Post-Processed/All/Kinase_DIS_Test'
 delete_input_files = True
 
 
@@ -46,5 +46,5 @@ def processes_xmi(filename):
 if __name__ == "__main__":
     inputs = [filename for filename in os.listdir(input_path)]
 
-    pool = mp.Pool(processes=2)
+    pool = mp.Pool(processes=4)
     pool.map(processes_xmi, inputs)

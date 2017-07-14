@@ -1,7 +1,7 @@
 import pickle
 import statistics
 
-path = '/data/CM_output/FT/Post-Processed/All/FT_All_TestSet_NCIT-Restricted.pkl'
+path = '/data/CM_output/Abst/Post-Processed/BandT/Abst_DIS_HP_IR.pkl'
 
 
 def load_obj(name):
@@ -21,12 +21,3 @@ if __name__ == "__main__":
     print("average: " + str(statistics.mean(sum)))
     print("median: " + str(statistics.median(sum)))
 
-    base = "This is a test IV"
-    index = base.index(" IV")
-    new_base = base[index - len(base) + 3:]
-    print(new_base)
-
-    count = 0
-    while count < 44000000:
-        count += 1
-    print(count)

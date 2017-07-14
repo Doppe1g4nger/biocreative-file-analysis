@@ -7,9 +7,9 @@ import pickle
 import multiprocessing as mp
 import tqdm
 
-kinase_input_dir = '/data/CM_output/FT/Post-Processed/All/Kinase_BP_Test'
-axis_input_dir = '/data/CM_output/FT/Post-Processed/All/GO'
-output_file = '/data/CM_output/Abst/Post-Processed/BandT/Abs_BandT/test2.pkl'
+kinase_input_dir = '/data/CM_output/Abst/Post-Processed/BandT/Kinase_BP_Test_RW_SAM'
+axis_input_dir = '/data/CM_output/Abst/Post-Processed/BandT/GO-old'
+output_file = '/data/CM_output/Abst/Post-Processed/BandT/Abst_BP_GO-old_IR.pkl'
 # del axis_input_dirs[0]
 kinase_list = []
 axis_list = []
@@ -64,7 +64,7 @@ def run_my_shit():
     k_inputs = [filename for filename in os.listdir(kinase_input_dir)]
     a_inputs = [filename for filename in os.listdir(axis_input_dir)]
 
-    pool = mp.Pool(processes=4)
+    pool = mp.Pool(processes=8)
 
     kinase_list = pool.map(kinase_processor, k_inputs)
     print("klist: " + str(len(kinase_list)))
