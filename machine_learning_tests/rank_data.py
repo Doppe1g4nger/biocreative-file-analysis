@@ -19,7 +19,7 @@ if __name__ == "__main__":
     )
     vectorizer, transformer = joblib.load(arguments["vectorizer"])
     classifier = joblib.load(arguments["classifier"])
-    with open(arguments["out_path"]) as outfile:
+    with open(arguments["out_path"], "w") as outfile:
         in_dict = pickle.load(arguments["possible_matches"], "rb")
         for kinase, doc_set in in_dict.items():
             result = []
