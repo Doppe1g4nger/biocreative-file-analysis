@@ -12,7 +12,10 @@ from sklearn.model_selection import cross_val_score
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
-from machine_learning_tests import helper_functions as helpers
+try:
+    from machine_learning_tests import helper_functions as helpers
+except:
+    import helper_functions as helpers
 
 
 def get_set_from_pickle(f_path):
