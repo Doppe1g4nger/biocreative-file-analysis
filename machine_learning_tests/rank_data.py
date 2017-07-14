@@ -17,7 +17,7 @@ if __name__ == "__main__":
         open(
             helpers.replace_pathvar_with_environ("$STORE/kinase_canonical_to_nxtprot_id.pkl"), "rb")
     )
-    vectorizer = joblib.load(arguments["vectorizer"])
+    vectorizer, transformer = joblib.load(arguments["vectorizer"])
     classifier = joblib.load(arguments["classifier"])
     with open(arguments["out_path"]) as outfile:
         in_dict = pickle.load(arguments["possible_matches"], "rb")
@@ -25,6 +25,8 @@ if __name__ == "__main__":
             result = []
             for doc in doc_set:
                 tf_idf_features = vectorizer.transform([arguments["doc_source"] + doc + ".txt"])
+                if transformer is not None:
+                    tf_idf_features = transformer.transform(tf_idf_features)
                 result.append(
                     (doc, classifier.predict_proba(tf_idf_features)[0][1], classifier.predict(tf_idf_features))
                 )
