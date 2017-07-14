@@ -3,6 +3,7 @@ import multiprocessing
 import pickle
 import sys
 from timeit import default_timer
+import copy
 
 from scipy.sparse import vstack
 from sklearn.externals import joblib
@@ -85,7 +86,7 @@ if __name__ == "__main__":
         joblib.dump((labels, tf_idf_features), arguments["new_fv_path"])
         time_to_hash = (stop_h - start_h) / 60
         time_to_tfidf = (stop - start) / 60
-        arguments["preexisting_fv"] = arguments["new_fv_path"]
+        arguments["preexisting_fv"] = copy.deepcopy(arguments["new_fv_path"])
         arguments["new_fv_path"] = ""
         with open("/home/ddopp/biocreative-file-analysis/machine_learning_tests/config.ini", "w") as config_file:
             config.write(config_file)
