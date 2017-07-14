@@ -1,6 +1,6 @@
 try:
     from machine_learning_tests import helper_functions as h
-except ImportError:
+except ModuleNotFoundError:
     import helper_functions as h
 from sklearn.externals import joblib
 
