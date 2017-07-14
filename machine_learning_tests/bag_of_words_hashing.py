@@ -12,7 +12,7 @@ from sklearn.model_selection import cross_val_score
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
-import helper_functions as helpers
+from machine_learning_tests import helper_functions as helpers
 
 
 def get_set_from_pickle(f_path):
@@ -29,41 +29,41 @@ if __name__ == "__main__":
     arguments = config[sys.argv[1]]
     for key in arguments:
         arguments[key] = helpers.replace_pathvar_with_environ(arguments[key])
-    # Get file names of training and random sets, vectorizers can read these in themselves
-    if arguments["training_type"] == "pkl":
-        training_id_set = get_set_from_pickle(arguments["training_pkl"])
-        training_text_files = [
-            file for file in helpers.get_all_files(arguments["training_source"])
-            if file.split("/")[-1].strip(".txt") in training_id_set
-        ]
-    else:
-        training_text_files = helpers.get_all_files(arguments["training_source"])
-    if arguments["random_type"] == "pkl":
-        random_id_set = get_set_from_pickle(arguments["random_pkl"])
-        random_text_files = [
-            file for file in helpers.get_all_files(arguments["random_source"])
-            if file.split("/")[-1].strip(".txt") in random_id_set
-        ]
-    else:
-        random_text_files = helpers.get_all_files(arguments["random_source"])
-
-    # random_text_files = [file for file in random_text_files if file not in training_text_files]
-    # print(len(random_text_files))
-    # print(training_text_files[:5], len(training_text_files))
-    # print(random_text_files[:5], len(random_text_files))
-
-    all_files = training_text_files + random_text_files
-    # Generate label group of 1's and 0's for training data
-    labels = [1 for i in range(len(training_text_files))] + [0 for i in range(len(random_text_files))]
     if arguments["preexisting_fv_path"]:
-        tf_idf_features = joblib.load(arguments["preexisting_fv_path"])
+        labels, tf_idf_features = joblib.load(arguments["preexisting_fv_path"])
         fv_path = arguments["preexisting_fv_path"]
     else:
         if not arguments["new_fv_path"]:
             raise ValueError(
-                "No preexisting or new feature vector file paths have been given in {} .".format(sys.argv[1])
+                "No preexisting or new feature vector file paths have been given in {} config.".format(sys.argv[1])
             )
         fv_path = arguments["new_fv_path"]
+        # Get file names of training and random sets, vectorizers can read these in themselves
+        if arguments["training_type"] == "pkl":
+            training_id_set = get_set_from_pickle(arguments["training_pkl"])
+            training_text_files = [
+                file for file in helpers.get_all_files(arguments["training_source"])
+                if file.split("/")[-1].strip(".txt") in training_id_set
+            ]
+        else:
+            training_text_files = helpers.get_all_files(arguments["training_source"])
+        if arguments["random_type"] == "pkl":
+            random_id_set = get_set_from_pickle(arguments["random_pkl"])
+            random_text_files = [
+                file for file in helpers.get_all_files(arguments["random_source"])
+                if file.split("/")[-1].strip(".txt") in random_id_set
+            ]
+        else:
+            random_text_files = helpers.get_all_files(arguments["random_source"])
+
+        # random_text_files = [file for file in random_text_files if file not in training_text_files]
+        # print(len(random_text_files))
+        # print(training_text_files[:5], len(training_text_files))
+        # print(random_text_files[:5], len(random_text_files))
+
+        all_files = training_text_files + random_text_files
+        # Generate label group of 1's and 0's for training data
+        labels = [1 for i in range(len(training_text_files))] + [0 for i in range(len(random_text_files))]
         basic_hash_vectorizer = HashingVectorizer(
             input="filename", strip_accents="unicode", stop_words="english", n_features=2**20,
             non_negative=True
@@ -79,13 +79,13 @@ if __name__ == "__main__":
         tf_idf_features = tfidf.fit_transform(features)
         stop = default_timer()
         joblib.dump((basic_hash_vectorizer, tfidf), arguments["vectorizer"])
-        joblib.dump(tf_idf_features, arguments["new_fv_path"])
+        joblib.dump((labels, tf_idf_features), arguments["new_fv_path"])
         time_to_hash = (stop_h - start_h) / 60
+        time_to_tfidf = (stop - start) / 60
         arguments["preexisting_fv"] = arguments["new_fv_path"]
         arguments["new_fv_path"] = ""
         with open("/home/ddopp/biocreative-file-analysis/machine_learning_tests/config.ini", "w") as config_file:
             config.write(config_file)
-        time_to_tfidf = (stop - start) / 60
         helpers.send_email(
             sender="danieldopp@outlook.com",
             password=arguments["email_pass"],
