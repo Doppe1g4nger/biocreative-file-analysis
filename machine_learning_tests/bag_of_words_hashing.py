@@ -113,7 +113,7 @@ if __name__ == "__main__":
         cross_val_time = (stop - start) / 60
         auroc = sum(scores) / len(scores)
         start = default_timer()
-        clf.fit(tf_idf_features, labels).sparsify()
+        clf.fit(tf_idf_features, labels)
         stop = default_timer()
         fit_time = (stop - start) / 60
         joblib.dump(clf, arguments["new_" + clf_name + "_classifier_path"])
