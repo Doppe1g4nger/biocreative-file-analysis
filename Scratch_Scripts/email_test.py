@@ -1,6 +1,6 @@
 from getpass import getpass
 
-from machine_learning_tests.helper_functions import send_email
+from helper_functions import send_email
 
 if __name__ == "__main__":
     send_email(

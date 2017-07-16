@@ -2,7 +2,7 @@ import pickle
 from os import listdir
 
 from AnnotatedArticle import AnnotatedArticle
-from machine_learning_tests.helper_functions import get_all_files
+from helper_functions import get_all_files
 
 if __name__ == "__main__":
     for directory in listdir("/data/GeneTag_over90_canonical/Pickled/"):
