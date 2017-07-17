@@ -16,7 +16,7 @@ def load_obj(name):
 
 
 def calculate_kaw_scores(kinase_AA, axis_AA):
-    k_score = kinase_AA.counter_of_hit_terms[kinase] / wc_dict[doc]
+    k_score = kinase_AA.counter_of_hit_terms[rel_kinase] / wc_dict[doc]
     a_score = axis_AA.number_of_hits / wc_dict[doc]
     kaw_score = a_score * k_score
     return [k_score, a_score, kaw_score]
@@ -26,7 +26,7 @@ def calculate_min_proximity(kinase_AA, axis_AA):
     axis_tokens = []
     kinase_tokens = []
     axis_attribs = axis_AA.list_of_attrib_dicts
-    kinase_attribs = [kin for kin in kinase_AA.list_of_attrib_dicts if kin['DictCanon'] == kinase]
+    kinase_attribs = [kin for kin in kinase_AA.list_of_attrib_dicts if kin['DictCanon'] == rel_kinase]
     for attrib in axis_attribs:
         for token in attrib['matchedTokens'].split(" "):
             axis_tokens.append(int(token))
@@ -40,7 +40,7 @@ def calculate_min_proximity(kinase_AA, axis_AA):
             if dist < min_proximity:
                 min_proximity = dist
     p_hist.append(min_proximity)
-    return [min_proximity]
+    return min_proximity
 
 
 def process_doc(kinase, doc):
@@ -53,9 +53,9 @@ def process_doc(kinase, doc):
     min_proximity = calculate_min_proximity(kinase_AA, axis_AA)
 
     try:
-        metric_dict[kinase].append([doc] + [kaw_scores] + [min_proximity])
+        metric_dict[kinase].append([doc] + kaw_scores + [min_proximity])
     except KeyError:
-        metric_dict[kinase] = [[doc] + [kaw_scores] + [min_proximity]]
+        metric_dict[kinase] = [[doc] + kaw_scores + [min_proximity]]
 
 
 def plot_hist(h):
@@ -66,14 +66,11 @@ def plot_hist(h):
     pl.show()
 
 if __name__ == "__main__":
-   # kinase_input_dir = r"C:\Users\Adam\Documents\MSU REU\Comparison_Abst\Kinases\Irrelevant\Post-Processed\DIS"
-   # axis_input_dir = r"C:\Users\Adam\Documents\MSU REU\Comparison_Abst\Ontologies\Irrelevant\Post-Processed\DIS\NCIT-Restricted"
-   # predicted_dictionary_input = r"C:\Users\Adam\Documents\MSU REU\Comparison_Abst\IR\Abst_Sample_NCIT-Restricted_Irr.pkl"
-    kinase_input_dir = r"C:\Users\Adam\Documents\MSU REU\FT_Post-Processed\Kinase_DIS_Test"
-    axis_input_dir = r"C:\Users\Adam\Documents\MSU REU\FT_Post-Processed\NCIT-Restricted"
-    predicted_dictionary_input = r"C:\Users\Adam\Documents\MSU REU\FT_Post-Processed\FT_BP_GO_IR.pkl"
-    word_count_dictionary_input = r"C:/Users/Adam/Documents/MSU REU/FT_Post-Processed/FT_wordcount.pkl"
-    output_file = r"C:\Users\Adam\Documents\MSU REU\FT_Post-Processed\Features\feat_NCIT.pkl"
+    kinase_input_dir = r"/data/CM_output/Abst/Post-Processed/BandT/Kinase_DIS_Test_RW_SAM"
+    axis_input_dir = r"/data/CM_output/Abst/Post-Processed/BandT/NCIT-Restricted"
+    predicted_dictionary_input = r"/data/CM_output/Abst/Post-Processed/BandT/Abst_DIS_NCIT-Restricted_IR.pkl"
+    word_count_dictionary_input = r"/data/CM_output/Abst/Post-Processed/BandT/Abst_wordcount.pkl"
+    output_file = r"/data/CM_output/Abst/Post-Processed/BandT/Abst_Feat_NCIT-Restricted"
     axis_tokens = []
     kinase_tokens = []
     metric_dict = {}
@@ -87,14 +84,14 @@ if __name__ == "__main__":
     kcounter = 0
     dcounter = 0
 
-    for kinase in pred_dict:
+    for rel_kinase in pred_dict:
         kcounter += 1
-        for doc in pred_dict[kinase]:
+        for doc in pred_dict[rel_kinase]:
             dcounter += 1
             if dcounter % 100 == 0:
                 print(str(kcounter) + " " + str(dcounter))
             try:
-                process_doc(kinase, doc)
+                process_doc(rel_kinase, doc)
             except EOFError:
                 pass
     with open(output_file, 'wb') as output_file:
