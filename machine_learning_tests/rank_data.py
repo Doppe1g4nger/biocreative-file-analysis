@@ -37,7 +37,7 @@ if __name__ == "__main__":
             result = sorted(result, reverse=True, key=lambda x: x[1])
             count = 0
             for item in result:
-                if count == 30:
+                if count == 30 or (item[2] == 0 and count > 15):
                     break
                 count += 1
                 outfile.write(
@@ -46,7 +46,7 @@ if __name__ == "__main__":
                             canon_to_id[kinase],
                             "dummy", item[0],
                             str(count),
-                            str(item[1] * 100),
+                            str(round(item[1] * 100, 2)),
                             arguments["run_id"],
                             "\n"
                         ]
