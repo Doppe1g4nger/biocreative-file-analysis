@@ -14,6 +14,8 @@ from sklearn.model_selection import cross_val_score
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
+
+
 try:
     from machine_learning_tests import helper_functions as helpers
 except ModuleNotFoundError:
@@ -70,7 +72,7 @@ if __name__ == "__main__":
         if arguments.getboolean('use_hashing'):
             vectorizer = HashingVectorizer(
                 input="filename", strip_accents="unicode", stop_words="english", n_features=2**20,
-                non_negative=True
+                non_negative=(arguments["classifier"] == "MNNB")
 
             )
             start_h = default_timer()
@@ -130,7 +132,6 @@ if __name__ == "__main__":
             clf, tf_idf_features, labels,
             scoring="roc_auc", cv=5, n_jobs=-1,
         )
-        print(scores)
         stop = default_timer()
         cross_val_time = (stop - start) / 60
         auroc = sum(scores) / len(scores)
