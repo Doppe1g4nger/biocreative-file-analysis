@@ -56,9 +56,10 @@ if __name__ == "__main__":
     # Generate label group of 1's and 0's for training data
     labels = [1 for i in range(len(training_text_files))] + [0 for i in range(len(random_text_files))]
 
-    vect = CountVectorizer(input="filename")
+    vect = CountVectorizer()
     transf = TfidfTransformer()
     parameters = {
+        "vect__input": ["filename"],
         "vect__strip_accents": [None, "unicode", "ascii"],
         "vect__ngram_range": [(1, 1), (1, 2), (2, 2), (1, 3), (2, 3), (3, 3)],
         "vect__stop_word": [None, "english"],
@@ -93,7 +94,7 @@ if __name__ == "__main__":
             "clf__weights": ["uniform", "distance"],
             "clf__algorithm": ["ball_tree", "kd_tree", "brute"],
             "clf__p": [1, 2, 3, 4],
-            "clf_n_jobs": [-1]
+            "clf__n_jobs": [-1]
         })
     else:
         raise ValueError("unsupported classifier argument given")
@@ -106,5 +107,5 @@ if __name__ == "__main__":
     grid_search = GridSearchCV(pipe, parameters, scoring="roc_auc", n_jobs=-1, refit=True, cv=5)
     grid_search.fit(all_files, labels)
     end = default_timer()
-    print(grid_search.cv_results_, grid_search, str((end - start) / 60))
-    joblib.dump(grid_search.best_estimator_, arguments["classifier"])
+    print(grid_search, grid_search.best_estimator_, str((end - start) / 60))
+    joblib.dump(grid_search, arguments["classifier_path"])
