@@ -62,7 +62,7 @@ if __name__ == "__main__":
         "vect__input": ["filename"],
         "vect__strip_accents": [None, "unicode", "ascii"],
         "vect__ngram_range": [(1, 1), (1, 2), (2, 2), (1, 3), (2, 3), (3, 3)],
-        "vect__stop_word": [None, "english"],
+        "vect__stop_words": [None, "english"],
         "vect__lowercase": [True, False],
         "vect__max_df": [x / 10 for x in range(1, 11)],
         "vect__binary": [True, False],
