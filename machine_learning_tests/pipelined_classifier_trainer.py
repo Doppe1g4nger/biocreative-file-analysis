@@ -60,26 +60,27 @@ if __name__ == "__main__":
     transf = TfidfTransformer()
     parameters = {
         "vect__input": ["filename"],
-        "vect__strip_accents": [None, "unicode", "ascii"],
-        "vect__ngram_range": [(1, 1), (1, 2), (2, 2), (1, 3), (2, 3), (3, 3)],
-        "vect__stop_words": [None, "english"],
-        "vect__lowercase": [True, False],
-        "vect__max_df": [x / 10 for x in range(1, 11)],
-        "vect__binary": [True, False],
-        "transf__norm": ["l1", "l2", None],
-        "transf__use_idf": [True, False],
-        "transf__smooth_idf": [True, False],
-        "transf__sublinear_tf": [True, False]
+        # "vect__strip_accents": [None, "unicode", "ascii"],
+        # "vect__ngram_range": [(1, 1), (1, 2), (1, 3)],
+        # "vect__stop_words": [None, "english"],
+        # "vect__lowercase": [True, False],
+        # "vect__max_df": [x / 10 for x in range(1, 11)],
+        # "vect__binary": [True, False],
+        # "transf__norm": ["l1", "l2", None],
+        # "transf__use_idf": [True, False],
+        # "transf__smooth_idf": [True, False],
+        # "transf__sublinear_tf": [True, False]
     }
     if arguments["classifier"] == "SVM":
         clf = SVC()
         parameters.update({
-            "clf__C": [0.1, 1.0, 10.0],
-            "clf__kernel": ["linear", "poly", "rbf", "sigmoid", "precomputed"],
             "clf__probability": [True],
-            "clf__degree": [1, 2, 3, 4, 5],
-            "clf__coef0": [0.0, 0.1, 0.5, 0.7, 1.0],
-            "clf__shrinking": [True, False],
+            # "clf__C": [0.01, 0.1, 1.0, 10.0, 100.0],
+            # "clf__kernel": ["poly", "rbf", "sigmoid"],
+            # "clf__degree": [1, 2, 3, 4, 5],
+            # "clf__coef0": [0.0, 0.1, 0.5, 0.7, 1.0],
+            # "clf__shrinking": [True, False],
+            # "clf__class_weight": ["balanced", None]
         })
     elif arguments["classifier"] == "MNNB":
         clf = MultinomialNB()
