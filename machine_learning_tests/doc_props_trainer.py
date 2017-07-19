@@ -34,12 +34,12 @@ if __name__ == "__main__":
         clf = SVC()
         parameters = {
             "clf__probability": [True],
-            "clf__C": [0.01, 0.1, 1.0, 10.0, 100.0],
-            "clf__kernel": ["poly", "rbf", "sigmoid"],
-            "clf__degree": [1, 2, 3, 4, 5],
-            "clf__coef0": [0.0, 0.1, 0.5, 0.7, 1.0],
-            "clf__shrinking": [True, False],
-            "clf__class_weight": ["balanced", None]
+            # "clf__C": [0.01, 0.1, 1.0, 10.0, 100.0],
+            # "clf__kernel": ["poly", "rbf", "sigmoid"],
+            # "clf__degree": [1, 2, 3, 4, 5],
+            # "clf__coef0": [0.0, 0.1, 0.5, 0.7, 1.0],
+            # "clf__shrinking": [True, False],
+            # "clf__class_weight": ["balanced", None]
         }
     elif arguments["classifier"] == "MNNB":
         clf = MultinomialNB()
