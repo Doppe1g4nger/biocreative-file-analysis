@@ -1,10 +1,5 @@
-import lxml.etree as etree
-from collections import Counter
-import os
 import AnnotatedArticle as aa
 import pickle
-import multiprocessing as mp
-import random
 import numpy as np
 import scipy.stats as stats
 import pylab as pl
@@ -66,22 +61,23 @@ def plot_hist(h):
     pl.show()
 
 if __name__ == "__main__":
-    kinase_input_dir = r"/data/CM_output/Abst/Post-Processed/BandT/Kinase_DIS_Test_RW_SAM"
-    axis_input_dir = r"/data/CM_output/Abst/Post-Processed/BandT/NCIT-Restricted"
-    predicted_dictionary_input = r"/data/CM_output/Abst/Post-Processed/BandT/Abst_DIS_NCIT-Restricted_IR.pkl"
-    word_count_dictionary_input = r"/data/CM_output/Abst/Post-Processed/BandT/Abst_wordcount.pkl"
-    output_file = r"/data/CM_output/Abst/Post-Processed/BandT/Abst_Feat_NCIT-Restricted"
+    kinase_input_dir = r"C:\Users\Adam\Documents\MSU REU\FT_Post-Processed\AA_Sets\Kinase_DIS_Train_RW"
+    axis_input_dir = r"C:\Users\Adam\Documents\MSU REU\FT_Post-Processed\AA_Sets\HP"
+    predicted_dictionary_input = r"C:\Users\Adam\Documents\MSU REU\FT_Post-Processed\IR\FT_HP_IR.pkl"
+    word_count_dictionary_input = r"C:\Users\Adam\Documents\MSU REU\FT_Post-Processed\IR\FT_wordcount.pkl"
+    output_file = r"C:\Users\Adam\Documents\MSU REU\FT_Post-Processed\Features\FT_HP_Feat.pkl"
     axis_tokens = []
     kinase_tokens = []
     metric_dict = {}
     k_hist = []
+
+    wc_dict = load_obj(word_count_dictionary_input)
+    kcounter = 0
     a_hist = []
     ka_hist = []
     p_hist = []
 
     pred_dict = load_obj(predicted_dictionary_input)
-    wc_dict = load_obj(word_count_dictionary_input)
-    kcounter = 0
     dcounter = 0
 
     for rel_kinase in pred_dict:
@@ -94,7 +90,8 @@ if __name__ == "__main__":
                 process_doc(rel_kinase, doc)
             except EOFError:
                 pass
+            except KeyError:
+                pass
     with open(output_file, 'wb') as output_file:
         pickle.dump(metric_dict, output_file, pickle.HIGHEST_PROTOCOL)
 
-    plot_hist(p_hist)
