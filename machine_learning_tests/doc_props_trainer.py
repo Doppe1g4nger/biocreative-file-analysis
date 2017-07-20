@@ -62,7 +62,15 @@ if __name__ == "__main__":
         ("clf", clf)
     ])
     start = default_timer()
-    grid_search = GridSearchCV(pipe, parameters, scoring="roc_auc", n_jobs=-1, refit=True, cv=5)
+    grid_search = GridSearchCV(
+        estimator=pipe,
+        param_grid=parameters,
+        scoring="roc_auc",
+        n_jobs=-1,
+        refit=True,
+        cv=5,
+        verbose=10
+    )
     grid_search.fit(features, labels)
     end = default_timer()
     print(grid_search, grid_search.best_estimator_, str((end - start) / 60))
