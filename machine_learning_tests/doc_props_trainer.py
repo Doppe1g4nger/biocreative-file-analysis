@@ -65,7 +65,8 @@ if __name__ == "__main__":
         scoring="roc_auc",
         n_jobs=-1,
         refit=True,
-        verbose=2
+        verbose=2,
+        error_score=0
     )
     grid_search.fit(features, labels)
     end = default_timer()
