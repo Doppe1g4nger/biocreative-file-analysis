@@ -35,9 +35,9 @@ if __name__ == "__main__":
         parameters = {
             "probability": [True],
             "C": [0.01, 0.1, 1.0, 10.0, 100.0],
-            # "kernel": ["poly", "rbf", "sigmoid"],
-            # "degree": [1, 2, 3, 4, 5],
-            "kernel": ["rbf", "sigmoid"],
+            "kernel": ["poly"],
+            "degree": [1, 2, 3, 4, 5],
+            # "kernel": ["rbf", "sigmoid"],
             "coef0": [0.0, 0.1, 0.5, 0.7, 1.0],
             "shrinking": [True, False],
             "class_weight": ["balanced", None]
@@ -67,14 +67,12 @@ if __name__ == "__main__":
         n_jobs=-1,
         refit=True,
         verbose=2,
-        error_score=0
     )
     grid_search.fit(features, labels)
     end = default_timer()
     print(grid_search)
     print(grid_search.best_estimator_)
     print(str((end - start) / 60))
-    print(grid_search.cv_results_)
     print(grid_search.best_score_)
     print(grid_search.best_params_)
     print(grid_search.scorer_)
