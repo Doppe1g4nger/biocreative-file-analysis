@@ -35,7 +35,7 @@ if __name__ == "__main__":
         parameters = {
             "probability": [True],
             "C": [0.01, 0.1, 1.0, 10.0, 100.0],
-            # "clf__kernel": ["poly", "rbf", "sigmoid"],
+            "kernel": ["poly", "rbf", "sigmoid"],
             # "clf__degree": [1, 2, 3, 4, 5],
             # "clf__coef0": [0.0, 0.1, 0.5, 0.7, 1.0],
             # "clf__shrinking": [True, False],
