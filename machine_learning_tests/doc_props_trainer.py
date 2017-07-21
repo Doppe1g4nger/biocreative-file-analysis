@@ -8,7 +8,6 @@ from sklearn.externals import joblib
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
-from sklearn.pipeline import Pipeline
 from sklearn.model_selection import GridSearchCV
 
 try:
@@ -29,6 +28,7 @@ if __name__ == "__main__":
     for key in arguments:
         arguments[key] = helpers.replace_pathvar_with_environ(arguments[key])
     labels, features = pickle.load(open(arguments["feature_vector"], "rb"))
+    print(labels, features)
     features = np.array(features)
     if arguments["classifier"] == "SVM":
         clf = SVC()
@@ -58,18 +58,14 @@ if __name__ == "__main__":
         }
     else:
         raise ValueError("unsupported classifier argument given")
-    pipe = Pipeline([
-        ("clf", clf)
-    ])
     start = default_timer()
     grid_search = GridSearchCV(
-        estimator=pipe,
+        estimator=clf,
         param_grid=parameters,
         scoring="roc_auc",
         n_jobs=-1,
         refit=True,
-        cv=5,
-        verbose=10
+        verbose=2
     )
     grid_search.fit(features, labels)
     end = default_timer()
