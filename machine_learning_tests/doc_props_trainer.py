@@ -34,7 +34,7 @@ if __name__ == "__main__":
         clf = SVC()
         parameters = {
             "probability": [True],
-            # "clf__C": [0.01, 0.1, 1.0, 10.0, 100.0],
+            "C": [0.01, 0.1, 1.0, 10.0, 100.0],
             # "clf__kernel": ["poly", "rbf", "sigmoid"],
             # "clf__degree": [1, 2, 3, 4, 5],
             # "clf__coef0": [0.0, 0.1, 0.5, 0.7, 1.0],
@@ -69,5 +69,12 @@ if __name__ == "__main__":
     )
     grid_search.fit(features, labels)
     end = default_timer()
-    print(grid_search, grid_search.best_estimator_, str((end - start) / 60))
+    print(grid_search)
+    print(grid_search.best_estimator_)
+    print(str((end - start) / 60))
+    print(grid_search.cv_results_)
+    print(grid_search.best_score_)
+    print(grid_search.best_params_)
+    print(grid_search.scorer_)
+    print(grid_search.n_splits_)
     joblib.dump(grid_search, arguments["classifier_path"])
