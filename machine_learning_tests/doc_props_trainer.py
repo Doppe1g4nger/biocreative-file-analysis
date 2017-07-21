@@ -29,8 +29,10 @@ if __name__ == "__main__":
     for key in arguments:
         arguments[key] = helpers.replace_pathvar_with_environ(arguments[key])
     labels, features = pickle.load(open(arguments["feature_vector"], "rb"))
-    print(labels, features)
+    print(labels[:10])
+    print(features[:10])
     features = scale(np.array(features))
+    print(features[:10])
     if arguments["classifier"] == "SVM":
         clf = SVC()
         parameters = {
