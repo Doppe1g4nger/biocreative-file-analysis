@@ -9,6 +9,7 @@ from sklearn.naive_bayes import MultinomialNB
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
 from sklearn.model_selection import GridSearchCV
+from sklearn.preprocessing import scale
 
 try:
     from machine_learning_tests import helper_functions as helpers
@@ -29,7 +30,7 @@ if __name__ == "__main__":
         arguments[key] = helpers.replace_pathvar_with_environ(arguments[key])
     labels, features = pickle.load(open(arguments["feature_vector"], "rb"))
     print(labels, features)
-    features = np.array(features)
+    features = scale(np.array(features))
     if arguments["classifier"] == "SVM":
         clf = SVC()
         parameters = {
