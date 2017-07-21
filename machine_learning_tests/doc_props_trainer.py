@@ -9,7 +9,8 @@ from sklearn.naive_bayes import MultinomialNB
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
 from sklearn.model_selection import GridSearchCV
-from sklearn.preprocessing import normalize
+from sklearn.preprocessing import Normalizer
+from sklearn.pipeline import Pipeline
 
 try:
     from machine_learning_tests import helper_functions as helpers
@@ -31,19 +32,16 @@ if __name__ == "__main__":
     labels, features = pickle.load(open(arguments["feature_vector"], "rb"))
     print(labels[:10])
     print(features[:10])
-    features = normalize(np.array(features))
-    print(features[:10])
+    features = np.array(features)
     if arguments["classifier"] == "SVM":
-        clf = SVC()
+        clf = SVC(probability=True)
         parameters = {
-            "probability": [True],
-            "C": [0.01, 0.1, 1.0, 10.0, 100.0],
-            # "kernel": ["poly"],
-            "degree": [1, 2, 3, 4, 5],
-            "kernel": ["rbf", "sigmoid", "poly"],
-            "coef0": [0.0, 0.1, 0.5, 0.7, 1.0],
-            "shrinking": [True, False],
-            "class_weight": ["balanced", None]
+            "clf__C": [0.01, 0.1, 1.0, 10.0, 100.0],
+            "clf__degree": [1, 2, 3, 4, 5],
+            "clf__kernel": ["rbf", "sigmoid", "poly"],
+            "clf__coef0": [0.0, 0.1, 0.5, 0.7, 1.0],
+            "clf__shrinking": [True, False],
+            "clf__class_weight": ["balanced", None]
         }
     elif arguments["classifier"] == "MNNB":
         clf = MultinomialNB()
@@ -62,9 +60,13 @@ if __name__ == "__main__":
         }
     else:
         raise ValueError("unsupported classifier argument given")
+    pipe = Pipeline([
+        ("pre", Normalizer(norm="l1")),
+        ("clf", clf)
+    ])
     start = default_timer()
     grid_search = GridSearchCV(
-        estimator=clf,
+        estimator=pipe,
         param_grid=parameters,
         scoring="roc_auc",
         n_jobs=-1,
