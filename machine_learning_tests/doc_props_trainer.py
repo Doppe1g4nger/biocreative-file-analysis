@@ -37,7 +37,7 @@ if __name__ == "__main__":
         clf = SVC(probability=True)
         parameters = {
             "clf__C": [0.01, 0.1, 1.0, 10.0, 100.0],
-            "clf__degree": [1, 2, 3, 4, 5],
+            "clf__degree": [1, 2, 3, 4, 5, 6, 7],
             "clf__kernel": ["rbf", "sigmoid", "poly"],
             "clf__coef0": [0.0, 0.1, 0.5, 0.7, 1.0],
             "clf__shrinking": [True, False],
