@@ -33,7 +33,7 @@ if __name__ == "__main__":
     if arguments["classifier"] == "SVM":
         clf = SVC()
         parameters = {
-            "clf__probability": [True],
+            "probability": [True],
             # "clf__C": [0.01, 0.1, 1.0, 10.0, 100.0],
             # "clf__kernel": ["poly", "rbf", "sigmoid"],
             # "clf__degree": [1, 2, 3, 4, 5],
