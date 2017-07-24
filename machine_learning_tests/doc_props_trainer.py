@@ -36,12 +36,12 @@ if __name__ == "__main__":
     if arguments["classifier"] == "SVM":
         clf = SVC(probability=True)
         parameters = {
-            "clf__C": [0.01, 0.1, 1.0, 10.0, 100.0],
-            "clf__degree": [1, 2, 3, 4, 5, 6, 7],
-            "clf__kernel": ["rbf", "sigmoid", "poly"],
-            "clf__coef0": [0.0, 0.1, 0.5, 0.7, 1.0],
-            "clf__shrinking": [True, False],
-            "clf__class_weight": ["balanced", None]
+            # "clf__C": [0.01, 0.1, 1.0, 10.0, 100.0],
+            # "clf__degree": [1, 2, 3, 4, 5],
+            # "clf__kernel": ["rbf", "sigmoid", "poly"],
+            # "clf__coef0": [0.0, 0.1, 0.5, 0.7, 1.0],
+            # "clf__shrinking": [True, False],
+            # "clf__class_weight": ["balanced", None]
         }
     elif arguments["classifier"] == "MNNB":
         clf = MultinomialNB()
@@ -74,7 +74,6 @@ if __name__ == "__main__":
         cv=inner_cv,
         scoring="roc_auc",
         n_jobs=-1,
-        refit=True,
         verbose=2,
     )
     grid_search.fit(features, labels)
