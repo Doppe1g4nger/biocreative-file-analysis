@@ -1,10 +1,8 @@
 import pickle
-import multiprocessing as mp
-import random
 import numpy as np
 import scipy.stats as stats
 import pylab as pl
-
+import matplotlib.pyplot as plt
 
 
 def load_obj(name):
@@ -18,6 +16,11 @@ def plot_hist(h):
     pl.plot(h, fit, '-o')
     pl.hist(h, normed=True, bins=50)
     pl.show()
+
+
+def plot_scatter(x_points, y_points):
+    plt.scatter(x_points,y_points)
+    plt.show()
 
 
 def old_compile_lists():
@@ -39,7 +42,7 @@ def new_compile_lists():
 
 
 if __name__ == "__main__":
-    feat_input = "/data/CM_output/Abst/Post-Processed/BandT/Abst_Feat_HP"
+    feat_input = "/data/CM_output/Comparison/Feat/Abst_BP_Rel_Feat.pkl"
     feat_dict = load_obj(feat_input)
 
     k = []
@@ -47,6 +50,7 @@ if __name__ == "__main__":
     ka = []
     p = []
 
-    old_compile_lists()
+    new_compile_lists()
 
-    plot_hist(ka)
+    plot_hist(p)
+
