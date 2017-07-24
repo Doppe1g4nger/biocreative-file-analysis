@@ -1,6 +1,7 @@
 import os
 import pickle
 import helper_functions as helpers
+from math import floor
 
 if __name__ == "__main__":
     # Change these to work on different axis/tasks
@@ -33,5 +34,5 @@ if __name__ == "__main__":
                    + TASK + "/" + AXIS + "/" + RUN + "/" + file[0] + "/"
         os.makedirs(dir_path, exist_ok=True)
         with open(dir_path + "rank" + "0" * (len(kinase_subset[-1][2]) - len(file[2])) + file[2]
-                  + "_0." + str(int(file[3])) + "_" + file[1] + ".txt", "w") as outfile:
+                  + "_0." + str(floor(float(file[3]))) + "_" + file[1] + ".txt", "w") as outfile:
             outfile.write(file_text)
