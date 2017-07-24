@@ -28,9 +28,10 @@ if __name__ == "__main__":
             [item for item in file_info_tuples if item[0] == file[0]],
             key=lambda x: int(x[2])
         )
+        print(kinase_subset)
         dir_path = "/mnt/lustrefs/store/ddopp/ML_Ranking_Output/BioCreativeVI_Track2/" \
                    + TASK + "/" + AXIS + "/" + RUN + "/" + file[0] + "/"
         os.makedirs(dir_path, exist_ok=True)
-        with open(dir_path + "rank" + "0" * (len(file[2]) - len(kinase_subset[-1][2])) + file[2]
-                  + "_0." + file[3] + "_" + file[1] + ".txt", "w") as outfile:
+        with open(dir_path + "rank" + "0" * (len(kinase_subset[-1][2]) - len(file[2])) + file[2]
+                  + "_0." + str(int(file[3])) + "_" + file[1] + ".txt", "w") as outfile:
             outfile.write(file_text)
