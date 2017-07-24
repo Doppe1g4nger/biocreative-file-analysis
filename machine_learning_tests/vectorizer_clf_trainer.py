@@ -134,7 +134,7 @@ if __name__ == "__main__":
         )
         stop = default_timer()
         cross_val_time = (stop - start) / 60
-        auroc = sum(scores) / len(scores)
+        auroc = scores.mean()
         start = default_timer()
         clf.fit(tf_idf_features, labels)
         stop = default_timer()
