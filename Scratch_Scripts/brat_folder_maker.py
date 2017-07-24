@@ -8,7 +8,7 @@ if __name__ == "__main__":
     TASK = "Task1"
     RUN = "Run0"
     FILEDIR = "/mnt/lustrefs/store/ddopp/CM_input/Abst/Abst_BandT/"
-    MLRANKSPATH = '/mnt/lustrefs/store/ddopp/ML_Ranking_Output/Run0/abstracts_disease.qrel'
+    MLRANKSPATH = '/mnt/lustrefs/store/ddopp/ML_Ranking_Output/Run0/abstract_disease.txt'
 
     with open(helpers.replace_pathvar_with_environ("$STORE/kinase_canonical_to_nxtprot_id.pkl"), "rb") as f:
         canon_to_nxt = pickle.load(f)
