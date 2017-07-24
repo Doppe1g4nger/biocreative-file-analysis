@@ -29,7 +29,7 @@ if __name__ == "__main__":
             [item for item in file_info_tuples if item[0] == file[0]],
             key=lambda x: int(x[2])
         )
-        print(kinase_subset)
+        # print(kinase_subset)
         dir_path = "/mnt/lustrefs/store/ddopp/ML_Ranking_Output/BioCreativeVI_Track2/" \
                    + TASK + "/" + AXIS + "/" + RUN + "/" + file[0] + "/"
         os.makedirs(dir_path, exist_ok=True)
