@@ -8,7 +8,7 @@ from sklearn.externals import joblib
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
-from sklearn.model_selection import GridSearchCV
+from sklearn.model_selection import GridSearchCV, cross_val_score, KFold
 from sklearn.preprocessing import Normalizer
 from sklearn.pipeline import Pipeline
 
@@ -65,21 +65,25 @@ if __name__ == "__main__":
         ("clf", clf)
     ])
     start = default_timer()
+    grid_search = None
+    inner_cv = KFold(n_splits=4, shuffle=True)
+    outer_cv = KFold(n_splits=4, shuffle=True)
     grid_search = GridSearchCV(
         estimator=pipe,
         param_grid=parameters,
+        cv=inner_cv,
         scoring="roc_auc",
         n_jobs=-1,
         refit=True,
         verbose=2,
     )
     grid_search.fit(features, labels)
+    nested_score = cross_val_score(estimator=clf, X=features, y=labels, cv=outer_cv).mean()
     end = default_timer()
     print(grid_search)
     print(grid_search.best_estimator_)
     print(str((end - start) / 60))
-    print(grid_search.best_score_)
+    print(grid_search.best_score_, nested_score, grid_search.best_score_ - nested_score)
     print(grid_search.best_params_)
-    print(grid_search.scorer_)
     print(grid_search.n_splits_)
     joblib.dump(grid_search, arguments["classifier_path"])
