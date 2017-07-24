@@ -15,7 +15,7 @@ def plot_hist(h):
     h = sorted(h)
     fit = stats.norm.pdf(h, np.mean(h), np.std(h))
     pl.plot(h, fit, '-o')
-    pl.hist(h, normed=True, bins=50)
+    pl.hist(h, normed=True, bins='auto')
     pl.show()
 
 
@@ -41,14 +41,15 @@ def plot_feature_vector(path, title=""):
 
     for i in range(0, len(labels) - 1):
         if labels[i] == 0:
-            x_irr.append(features[i][3])
-            y_irr.append(features[i][2])
+            x_irr.append(features[i][1])
+            y_irr.append(features[i][3])
         else:
-            x_rel.append(features[i][3])
-            y_rel.append(features[i][2])
+            x_rel.append(features[i][1])
+            y_rel.append(features[i][3])
     print(len(x_rel))
 
-    # plot_hist(x_rel)
+    plot_hist(x_irr)
+    plot_hist(y_irr)
     pp.plot(x_irr, y_irr, 'r^', x_rel, y_rel, 'bs')
     pp.xlabel('Proximity')
     pp.ylabel('Relevancy Score')
@@ -85,10 +86,10 @@ def new_compile_lists():
 
 
 if __name__ == "__main__":
-    feat_input = r"C:\Users\Adam\Documents\MSU REU\FT_Post-Processed\Features\Training_Features_Vectors\FT_GO_proxtest_Train_FV.pkl"
-    input2 = r"C:\Users\Adam\Documents\MSU REU\Comparison_Abst\Feat\Abst_Sample_HP_Rel_Feat.pkl"
+    feat_input = r"/data/CM_output/Abst/Post-Processed/FV/Abst_GO_Train_FV_proxcount.pkl"
+    #input2 = r"C:\Users\Adam\Documents\MSU REU\Comparison_Abst\Feat\Abst_Sample_HP_Rel_Feat.pkl"
     feat_dict = load_obj(feat_input)
-    dict2 = load_obj(input2)
+    #dict2 = load_obj(input2)
 
     k = []
     a = []
