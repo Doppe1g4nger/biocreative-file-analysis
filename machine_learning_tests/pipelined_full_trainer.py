@@ -58,7 +58,7 @@ if __name__ == "__main__":
         parameters = {
             "clf__probability": [True],
             "clf__coef0": [0.5],
-            "clf__cache_size": [5000.0],
+            "clf__cache_size": [20000.0],
             "clf__C": [0.01, 0.1, 1.0, 10.0, 100.0],
             "clf__degree": [1, 2, 3],
             "clf__kernel": ["rbf", "poly"],
