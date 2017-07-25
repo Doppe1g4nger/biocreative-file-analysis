@@ -36,3 +36,17 @@ if __name__ == "__main__":
         with open(dir_path + "rank" + "0" * (len(kinase_subset[-1][2]) - len(file[2])) + file[2]
                   + "_0." + "".join(file[3].split(".")) + "_" + file[1] + ".txt", "w") as outfile:
             outfile.write(file_text)
+        with open(dir_path + "rank" + "0" * (len(kinase_subset[-1][2]) - len(file[2])) + file[2]
+                  + "_0." + "".join(file[3].split(".")) + "_" + file[1] + ".ann", "w") as outfile:
+            outfile.write("")
+
+
+
+
+
+
+
+
+
+
+
