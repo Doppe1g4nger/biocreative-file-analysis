@@ -53,7 +53,7 @@ if __name__ == "__main__":
     # Select among classifiers and set their parameters for GridSearchCV
     if arguments["classifier"] == "SVM":
         clf = SVC()
-        parameters = {
+        parameters.update({
             "clf__probability": [True],
             # "clf__coef0": [0.5],
             # "clf__cache_size": [20000.0],
@@ -61,22 +61,22 @@ if __name__ == "__main__":
             # "clf__degree": [1, 2, 3],
             # "clf__kernel": ["rbf", "poly"],
             # "clf__class_weight": ["balanced", None],
-        }
+        })
     elif arguments["classifier"] == "MNNB":
         clf = MultinomialNB()
-        parameters = {
+        parameters.update({
             "clf__alpha": [0, 1.0, 0.1, 10.0, 5.0],
             "clf__fit_prior": [True, False],
-        }
+        })
     elif arguments["classifier"] == "KNN":
         clf = KNeighborsClassifier()
-        parameters = {
+        parameters.update({
             "clf__n_neighbors": [3, 5, 10],
             "clf__weights": ["uniform", "distance"],
             "clf__algorithm": ["ball_tree", "kd_tree", "brute"],
             "clf__p": [1, 2, 3, 4],
             "clf__n_jobs": [-1],
-        }
+        })
     else:
         raise ValueError("unsupported classifier argument given")
     pipeline_input.append(("clf", clf))
@@ -107,6 +107,6 @@ if __name__ == "__main__":
     print(grid_search)
     print(grid_search.best_estimator_)
     print(str((end - start) / 60))
-    print(grid_search.best_score_, nested_score.mean(), grid_search.best_score_ - nested_score)
+    print(grid_search.best_score_, nested_score.mean(), grid_search.best_score_ - nested_score.mean())
     print(grid_search.best_params_)
     joblib.dump(grid_search, arguments["classifier_path"])
