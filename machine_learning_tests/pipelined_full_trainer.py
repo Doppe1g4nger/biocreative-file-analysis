@@ -27,8 +27,6 @@ if __name__ == "__main__":
         arguments[key] = helpers.replace_pathvar_with_environ(arguments[key])
     # Extract triple of arrays from pickled docs, use doc_id for bag of words, fv_array for doc_prop vector    
     labels, fv_array, doc_ids = pickle.load(open(arguments["feature_vector"], "rb"))
-    labels = np.array(labels)
-    print(np.unique(labels))
     parameters = {}
     pipeline_input = []
     # Select between training method, set parameters and pipeline input for each option
@@ -93,6 +91,7 @@ if __name__ == "__main__":
         scoring="roc_auc",
         n_jobs=-1,
         verbose=2,
+        pre_dispatch=20,
     )
     grid_search.fit(features, labels)
     nested_score = cross_val_score(
