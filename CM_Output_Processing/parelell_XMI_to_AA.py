@@ -6,11 +6,12 @@ import os
 import AnnotatedArticle as aa
 import pickle
 import multiprocessing as mp
+import tqdm
 
 
-input_path = '/data/CM_output/Comparison/Kinases/Relevant/BP'
-output_path = '/data/CM_output/Comparison/Kinases/Relevant/Post-Processed/Test_BP'
-delete_input_files = False
+input_path = '/data/CM_output/Abst/BandT/Kinase_DIS_Test_RW'
+output_path = '/data/CM_output/Abst/Post-Processed/BandT/Kinase_DIS_Test_RW'
+delete_input_files = True
 
 
 def processes_xmi(filename):
@@ -45,5 +46,5 @@ def processes_xmi(filename):
 if __name__ == "__main__":
     inputs = [filename for filename in os.listdir(input_path)]
 
-    pool = mp.Pool(processes=8)
+    pool = mp.Pool(processes=4)
     pool.map(processes_xmi, inputs)

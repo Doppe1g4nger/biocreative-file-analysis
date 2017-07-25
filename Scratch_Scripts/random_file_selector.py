@@ -1,8 +1,9 @@
-from helper_functions import get_all_files
-from random import shuffle
-from random import randint
 import pickle
+from random import randint
+from random import shuffle
 from timeit import default_timer
+
+from helper_functions import get_all_files
 
 if __name__ == "__main__":
     base_path = "/data/Random FullText Selections/"
