@@ -27,6 +27,8 @@ if __name__ == "__main__":
         arguments[key] = helpers.replace_pathvar_with_environ(arguments[key])
     # Extract triple of arrays from pickled docs, use doc_id for bag of words, fv_array for doc_prop vector    
     labels, fv_array, doc_ids = pickle.load(open(arguments["feature_vector"], "rb"))
+    labels = np.array(labels)
+    print(np.unique(labels))
     parameters = {}
     pipeline_input = []
     # Select between training method, set parameters and pipeline input for each option
@@ -44,7 +46,6 @@ if __name__ == "__main__":
         })
     elif arguments["training_method"] == "DOCPROP":
         features = np.array(fv_array)
-        print(features.flags)
         pipeline_input.append(("pre", Normalizer()))
         parameters.update({
             "pre__norm": ["l1", "l2", "max"]
