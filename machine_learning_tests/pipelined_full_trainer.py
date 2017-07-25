@@ -55,12 +55,12 @@ if __name__ == "__main__":
         clf = SVC()
         parameters = {
             "clf__probability": [True],
-            "clf__coef0": [0.5],
-            "clf__cache_size": [20000.0],
-            "clf__C": [0.01, 0.1, 1.0, 10.0, 100.0],
-            "clf__degree": [1, 2, 3],
-            "clf__kernel": ["rbf", "poly"],
-            "clf__class_weight": ["balanced", None],
+            # "clf__coef0": [0.5],
+            # "clf__cache_size": [20000.0],
+            # "clf__C": [0.01, 0.1, 1.0, 10.0, 100.0],
+            # "clf__degree": [1, 2, 3],
+            # "clf__kernel": ["rbf", "poly"],
+            # "clf__class_weight": ["balanced", None],
         }
     elif arguments["classifier"] == "MNNB":
         clf = MultinomialNB()
@@ -81,7 +81,7 @@ if __name__ == "__main__":
         raise ValueError("unsupported classifier argument given")
     pipeline_input.append(("clf", clf))
     pipe = Pipeline(pipeline_input)
-    print(pipe, pipeline_input)
+    print(pipe, pipeline_input, parameters)
     start = default_timer()
     inner_cv = StratifiedKFold(shuffle=True)
     outer_cv = StratifiedKFold(shuffle=True)
