@@ -9,7 +9,7 @@ from sklearn.naive_bayes import MultinomialNB
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
 from sklearn.model_selection import GridSearchCV, cross_val_score, StratifiedKFold
-from sklearn.preprocessing import Normalizer
+from sklearn.preprocessing import Normalizer, normalize
 from sklearn.pipeline import Pipeline
 from sklearn.feature_extraction.text import TfidfVectorizer
 
@@ -43,11 +43,11 @@ if __name__ == "__main__":
             "tfidf_vect__sublinear_tf": [True]
         })
     elif arguments["training_method"] == "DOCPROP":
-        features = np.array(fv_array)
-        pipeline_input.append(("pre", Normalizer()))
-        parameters.update({
-            "pre__norm": ["l1", "l2", "max"]
-        })
+        features = normalize(np.array(fv_array), norm='l1')
+        # pipeline_input.append(("pre", Normalizer()))
+        # parameters.update({
+        #     "pre__norm": ["l1", "l2", "max"]
+        # })
     else:
         raise ValueError("Invalid training_method argument specified in config")
     # Select among classifiers and set their parameters for GridSearchCV
@@ -55,12 +55,12 @@ if __name__ == "__main__":
         clf = SVC()
         parameters.update({
             "clf__probability": [True],
-            # "clf__coef0": [0.5],
-            # "clf__cache_size": [20000.0],
-            # "clf__C": [0.01, 0.1, 1.0, 10.0, 100.0],
-            # "clf__degree": [1, 2, 3],
-            # "clf__kernel": ["rbf", "poly"],
-            # "clf__class_weight": ["balanced", None],
+            "clf__coef0": [0.5],
+            "clf__cache_size": [20000.0],
+            "clf__C": [0.01, 0.1, 1.0, 10.0, 100.0],
+            "clf__degree": [1, 2, 3],
+            "clf__kernel": ["rbf", "poly"],
+            "clf__class_weight": ["balanced", None],
         })
     elif arguments["classifier"] == "MNNB":
         clf = MultinomialNB()
@@ -92,7 +92,7 @@ if __name__ == "__main__":
         scoring="roc_auc",
         n_jobs=-1,
         verbose=2,
-        pre_dispatch=10,
+        pre_dispatch=20,
     )
     grid_search.fit(features, labels)
     nested_score = cross_val_score(
