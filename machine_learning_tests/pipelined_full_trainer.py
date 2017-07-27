@@ -3,15 +3,18 @@ import pickle
 import sys
 from timeit import default_timer
 import numpy as np
+from random import shuffle
+from itertools import chain
 
 from sklearn.externals import joblib
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
 from sklearn.model_selection import GridSearchCV, cross_val_score, StratifiedKFold
-from sklearn.preprocessing import Normalizer, normalize
+from sklearn.preprocessing import normalize
 from sklearn.pipeline import Pipeline
 from sklearn.feature_extraction.text import TfidfVectorizer
+from multiprocessing import cpu_count
 
 try:
     from machine_learning_tests import helper_functions as helpers
@@ -19,6 +22,7 @@ except ModuleNotFoundError:
     import helper_functions as helpers
 
 if __name__ == "__main__":
+    print(cpu_count())
     # Read in ini formatted config file passed as command line argument, replace path shortening variables
     config = configparser.ConfigParser()
     config.read(sys.argv[1])
@@ -27,6 +31,41 @@ if __name__ == "__main__":
         arguments[key] = helpers.replace_pathvar_with_environ(arguments[key])
     # Extract triple of arrays from pickled docs, use doc_id for bag of words, fv_array for doc_prop vector    
     labels, fv_array, doc_ids = pickle.load(open(arguments["feature_vector"], "rb"))
+    # If ini specifies to use less than all documents, take a random sample of the zero terms
+    if arguments["training_doc_count"] != "ALL":
+        shuffle_size = None
+        one_tuples = []
+        zero_tuples = []
+        shuffle_size_too_big = False
+        # Split fvs and doc ids by label
+        for i in range(len(labels)):
+            if labels[i]:
+                one_tuples.append((fv_array[i], doc_ids[i]))
+            else:
+                zero_tuples.append((fv_array[i], doc_ids[i]))
+        # do nothing if the doc_count is a multiplier and requested size greater than total zeroes
+        if arguments.getboolean("doc_count_is_multiplier"):
+            if int(arguments["training_doc_count"]) * len(one_tuples) >= len(zero_tuples):
+                shuffle_size_too_big = True
+            else:
+                shuffle_size = int(arguments["training_doc_count"]) * len(one_tuples)
+        else:
+            # do nothing if requested size bigger than total zeroes
+            shuffle_size = int(arguments["training_doc_count"])
+            if shuffle_size > len(zero_tuples):
+                shuffle_size_too_big = True
+        # Cut down zero tuples to random size desired
+        if not shuffle_size_too_big:
+            zero_tuples = shuffle(zero_tuples)[:shuffle_size]
+            # Reassign labels in ordered sequence and assign fvs and doc ids while maintaining pairings
+            labels = [1 for i in range(len(one_tuples))] + [0 for i in range(len(zero_tuples))]
+            fv_array = [item[0] for item in chain(one_tuples, zero_tuples)]
+            doc_ids = [item[1] for item in chain(one_tuples, zero_tuples)]
+            print(len(zero_tuples), zero_tuples[:5])
+            print(len(one_tuples), one_tuples[:5])
+            print(labels)
+            print(fv_array[:5])
+            print(doc_ids[:5])
     parameters = {}
     pipeline_input = []
     # Select between training method, set parameters and pipeline input for each option
@@ -54,7 +93,7 @@ if __name__ == "__main__":
     if arguments["classifier"] == "SVM":
         clf = SVC()
         parameters.update({
-            # "clf__probability": [True],
+            "clf__probability": [True],
             "clf__coef0": [0.5],
             "clf__cache_size": [5000.0],
             "clf__C": [0.01, 0.1, 1.0, 10.0, 100.0],
@@ -92,7 +131,7 @@ if __name__ == "__main__":
         scoring="roc_auc",
         n_jobs=-1,
         verbose=2,
-        pre_dispatch=11,
+        pre_dispatch=20,
     )
     grid_search.fit(features, labels)
     nested_score = cross_val_score(
