@@ -95,7 +95,7 @@ if __name__ == "__main__":
         parameters.update({
             "clf__probability": [True],
             "clf__coef0": [0.5],
-            "clf__cache_size": [5000.0],
+            "clf__cache_size": [10000.0],
             "clf__C": [0.01, 0.1, 1.0, 10.0, 100.0],
             "clf__degree": [1, 2, 3],
             "clf__kernel": ["rbf", "poly"],
@@ -131,7 +131,7 @@ if __name__ == "__main__":
         scoring="roc_auc",
         n_jobs=-1,
         verbose=2,
-        pre_dispatch=20,
+        pre_dispatch=16,
     )
     grid_search.fit(features, labels)
     nested_score = cross_val_score(
