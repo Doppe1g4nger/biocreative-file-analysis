@@ -22,7 +22,6 @@ except ModuleNotFoundError:
     import helper_functions as helpers
 
 if __name__ == "__main__":
-    print(cpu_count())
     # Read in ini formatted config file passed as command line argument, replace path shortening variables
     config = configparser.ConfigParser()
     config.read(sys.argv[1])
@@ -96,7 +95,7 @@ if __name__ == "__main__":
         parameters.update({
             "clf__probability": [True],
             "clf__coef0": [0.5],
-            "clf__cache_size": [10000.0],
+            "clf__cache_size": [int(sys.argv[3]) / cpu_count()],
             "clf__C": [0.01, 0.1, 1.0, 10.0, 100.0],
             "clf__degree": [1, 2, 3],
             "clf__kernel": ["rbf", "poly"],
@@ -132,7 +131,7 @@ if __name__ == "__main__":
         scoring="roc_auc",
         n_jobs=-1,
         verbose=2,
-        pre_dispatch=16,
+        pre_dispatch=cpu_count(),
     )
     grid_search.fit(features, labels)
     nested_score = cross_val_score(
