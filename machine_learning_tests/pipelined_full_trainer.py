@@ -56,7 +56,8 @@ if __name__ == "__main__":
                 shuffle_size_too_big = True
         # Cut down zero tuples to random size desired
         if not shuffle_size_too_big:
-            zero_tuples = shuffle(zero_tuples)[:shuffle_size]
+            shuffle(zero_tuples)
+            zero_tuples = zero_tuples[:shuffle_size]
             # Reassign labels in ordered sequence and assign fvs and doc ids while maintaining pairings
             labels = [1 for i in range(len(one_tuples))] + [0 for i in range(len(zero_tuples))]
             fv_array = [item[0] for item in chain(one_tuples, zero_tuples)]
