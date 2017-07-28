@@ -86,7 +86,7 @@ def new_compile_lists():
 
 
 if __name__ == "__main__":
-    feat_input = r"/data/CM_output/Abst/Post-Processed/FV/Abst_GO_Train_FV_proxcount.pkl"
+    feat_input = r"/data/CM_output/Abst/Post-Processed/FV/Abst_GO_Train_FV_combined.pkl"
     #input2 = r"C:\Users\Adam\Documents\MSU REU\Comparison_Abst\Feat\Abst_Sample_HP_Rel_Feat.pkl"
     feat_dict = load_obj(feat_input)
     #dict2 = load_obj(input2)

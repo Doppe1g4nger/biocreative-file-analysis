@@ -5,10 +5,10 @@ import os
 
 if __name__ == "__main__":
 
-    input_file = r'C:\Users\Adam\Documents\MSU REU\Task3\task3testdata\BP_test_topics.xml'
-    output_pkl_file = r'C:\Users\Adam\Documents\MSU REU\Task3\task3testdata\task3_BP_test_dict.pkl'
-    move_files_from = r"C:\Users\Adam\Documents\MSU REU\FT_Post-Processed\GO-old"
-    move_files_to = r"C:\Users\Adam\Documents\MSU REU\Task3\FT_T3\GO-old"
+    input_file = r'/data/task3testdata/DIS_test_topics.xml'
+    output_pkl_file = r'/data/task3testdata/task3_DIS_test_dict.pkl'
+    move_files_from = r"/data/CM_output/FT/Post-Processed/All/NCIT-Restricted"
+    move_files_to = r"/data/Task3/FT_T3/NCIT"
 
     xmi = etree.iterparse(input_file, events=("end", ))
 

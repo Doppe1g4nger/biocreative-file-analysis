@@ -14,7 +14,7 @@ def get_prox_endpoints(rel_kinase, axis_AA, kinase_AA):
     axis_attribs = axis_AA.list_of_attrib_dicts
     min_axis = (0, 0, 0)
     min_kinase = (0, 0, 0)
-    nextprot_dict = load_obj(r"C:\Users\Adam\Documents\MSU REU\kinase_canonical_to_nxtprot_id.pkl")
+    nextprot_dict = load_obj(r"/data/Task3/kinase_canonical_to_nxtprot_id.pkl")
     kinase_attribs = [kin for kin in kinase_AA.list_of_attrib_dicts if nextprot_dict[kin['DictCanon']] == rel_kinase]
     for attrib in axis_attribs:
         for token in attrib['matchedTokens'].split(" "):
@@ -90,10 +90,11 @@ def cut_snippet(start_char, end_char, fulltext):
 
 
 if __name__ == "__main__":
-    fulltext_dir = r"C:\Users\Adam\Documents\MSU REU\cft"
-    kinase_AA_dir = r"C:\Users\Adam\Documents\MSU REU\Comparison_FT\Kinases\Relevant\Post-Processed\BP"
-    axis_AA_dir = r"C:\Users\Adam\Documents\MSU REU\FT_Post-Processed\GO"
-    input_xml_file = r'C:\Users\Adam\Documents\MSU REU\Task3\task3testdata\BP_test_topics.xml'
+    fulltext_dir = r"/data/CM_input/FullText/FullTexts_All"
+    kinase_AA_dir = r"/data/CM_output/FT/Post-Processed/All/Kinase_DIS_Test_RW_default_pp"
+    axis_AA_dir = r"/data/Task3/FT_T3/NCIT"
+    input_xml_file = r'/data/task3testdata/DIS_test_topics.xml'
+    output_tsv_file = "/data/Task3/jhunj.tsv"
 
     kinase_dict = build_dictionary(input_xml_file)
 
@@ -107,4 +108,7 @@ if __name__ == "__main__":
 
         snip = cut_snippet(start_char, end_char, fulltext)
 
-        print(kinase + "\tBP\t" + kinase_dict[kinase] + "\t" + snip)
+        print(kinase + "\tDIS\t" + kinase_dict[kinase] + "\t" + snip)
+
+        with open(output_tsv_file, 'a') as out_file:
+            print(kinase + "\tDIS\t" + kinase_dict[kinase] + "\t" + snip, file=out_file)

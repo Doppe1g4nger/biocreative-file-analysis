@@ -9,8 +9,8 @@ import multiprocessing as mp
 import tqdm
 
 
-input_path = '/data/CM_output/Abst/BandT/Kinase_DIS_Test_RW'
-output_path = '/data/CM_output/Abst/Post-Processed/BandT/Kinase_DIS_Test_RW'
+input_path = '/data/CM_output/Abst/BandT/GO'
+output_path = '/data/CM_output/Abst/Post-Processed/BandT/GO'
 delete_input_files = True
 
 
