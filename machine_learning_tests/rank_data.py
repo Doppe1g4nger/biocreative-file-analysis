@@ -17,7 +17,7 @@ def docprop_ranking(param_tup):
 
 
 def bow_ranking(param_tup):
-    features = param_tup[1].transform([arguments["doc_source"] + param_tup[0] + ".txt"])
+    features = param_tup[1].transform([arguments["document_path"] + param_tup[0] + ".txt"])
     return param_tup[0], param_tup[2].predict_proba(features)[0][1], param_tup[2].predict(features)
 
 if __name__ == "__main__":
@@ -31,7 +31,7 @@ if __name__ == "__main__":
             helpers.replace_pathvar_with_environ("$STORE/kinase_canonical_to_nxtprot_id.pkl"), "rb"
         )
     )
-    classifier, transformer = joblib.load(arguments["classifier"])
+    classifier, transformer = joblib.load(arguments["classifier_path"])
     with open(arguments["out_path"], "w") as outfile:
         in_dict = pickle.load(open(arguments["possible_matches"], "rb"))
         if arguments["training_method"] == "BOW":
