@@ -171,7 +171,7 @@ if __name__ == "__main__":
         scoring="roc_auc",
         n_jobs=-1,
     )
-    print(grid_search, grid_search.best_estimator_, grid_search.best_estimator_, sep="\n")
+    print(grid_search, grid_search.best_estimator_, sep="\n")
     print(str((default_timer() - start) / 60))
     print(grid_search.best_score_, nested_score.mean(), grid_search.best_score_ - nested_score.mean(), sep=", ")
     print(grid_search.best_params_)
