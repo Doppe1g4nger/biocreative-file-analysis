@@ -16,7 +16,6 @@ from sklearn.preprocessing import Normalizer
 from sklearn.pipeline import Pipeline
 from sklearn.feature_extraction.text import TfidfVectorizer
 from multiprocessing import cpu_count
-
 try:
     from machine_learning_tests import helper_functions as helpers
 except ModuleNotFoundError:
