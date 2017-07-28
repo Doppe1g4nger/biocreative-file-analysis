@@ -1,7 +1,6 @@
 import os
 import pickle
 import helper_functions as helpers
-from math import floor
 
 if __name__ == "__main__":
     # Change these to work on different axis/tasks
@@ -31,22 +30,12 @@ if __name__ == "__main__":
         )
         # print(kinase_subset)
         dir_path = "/mnt/lustrefs/store/ddopp/ML_Ranking_Output/BioCreativeVI_Track2/" \
-                   + TASK + "/" + AXIS + "/" + RUN + "/" + file[0] + "/"
+                   + "/".join([TASK, AXIS, RUN, file[0]]) + "/"
         os.makedirs(dir_path, exist_ok=True)
+        # May god have mercy on my soul
         with open(dir_path + "rank" + "0" * (len(kinase_subset[-1][2]) - len(file[2])) + file[2]
                   + "_0." + "".join(file[3].split(".")) + "_" + file[1] + ".txt", "w") as outfile:
             outfile.write(file_text)
         with open(dir_path + "rank" + "0" * (len(kinase_subset[-1][2]) - len(file[2])) + file[2]
                   + "_0." + "".join(file[3].split(".")) + "_" + file[1] + ".ann", "w") as outfile:
             outfile.write("")
-
-
-
-
-
-
-
-
-
-
-
