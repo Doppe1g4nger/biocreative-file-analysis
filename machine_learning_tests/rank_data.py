@@ -13,12 +13,18 @@ except ModuleNotFoundError:
 
 def docprop_ranking(param_tup):
     features = param_tup[1].transform(param_tup[0][1])
-    return param_tup[0][0], param_tup[2].predict_proba(features)[0][1], param_tup[2].predict(features)
+    try:
+        return param_tup[0][0], param_tup[2].predict_proba(features)[0][1], param_tup[2].predict(features)
+    except AttributeError:
+        return param_tup[0][0], param_tup[2].decision_function(features)[0][1], param_tup[2].predict(features)
 
 
 def bow_ranking(param_tup):
     features = param_tup[1].transform([arguments["document_path"] + param_tup[0] + ".txt"])
-    return param_tup[0], param_tup[2].predict_proba(features)[0][1], param_tup[2].predict(features)
+    try:
+        return param_tup[0][0], param_tup[2].predict_proba(features)[0][1], param_tup[2].predict(features)
+    except AttributeError:
+        return param_tup[0][0], param_tup[2].decision_function(features)[0][1], param_tup[2].predict(features)
 
 if __name__ == "__main__":
     config = configparser.ConfigParser()
