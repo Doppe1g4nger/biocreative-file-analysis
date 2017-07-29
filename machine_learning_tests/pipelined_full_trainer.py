@@ -5,7 +5,6 @@ from timeit import default_timer
 import numpy as np
 from random import shuffle
 from itertools import chain
-from math import floor
 
 from sklearn.externals import joblib
 from sklearn.naive_bayes import MultinomialNB
@@ -15,7 +14,7 @@ from sklearn.model_selection import GridSearchCV, cross_val_score, StratifiedKFo
 from sklearn.preprocessing import Normalizer
 from sklearn.pipeline import Pipeline
 from sklearn.feature_extraction.text import TfidfVectorizer
-from multiprocessing import cpu_count
+
 try:
     from machine_learning_tests import helper_functions as helpers
 except ModuleNotFoundError:
@@ -109,10 +108,10 @@ if __name__ == "__main__":
             "clf__probability": [True],
             "clf__coef0": [0.5],
             "clf__cache_size": [5000],
-            "clf__C": [1.0],
+            # "clf__C": [1.0],
             "clf__degree": [3],
             "clf__class_weight": ["balanced"],
-            # "clf__C": [0.01, 0.1, 1.0, 10.0, 100.0],
+            "clf__C": [0.01, 0.1, 1.0, 10.0, 100.0],
             # "clf__degree": [1, 2, 3],
             "clf__kernel": ["rbf", "poly"],
             # "clf__class_weight": ["balanced", None],
@@ -159,7 +158,7 @@ if __name__ == "__main__":
         scoring="roc_auc",
         n_jobs=-1,
         verbose=2,
-        pre_dispatch=floor(cpu_count() * 3/2),
+        pre_dispatch=2,
         error_score=-1
     )
     grid_search.fit(features, labels)
