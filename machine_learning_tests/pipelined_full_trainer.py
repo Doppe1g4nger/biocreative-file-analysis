@@ -146,7 +146,7 @@ if __name__ == "__main__":
         })
     else:
         raise ValueError("unsupported classifier argument given")
-    print(len(features), len(features[0]))
+    print(features.shape[0], features.shape[1])
     pipeline_input.append(("clf", clf))
     pipe = Pipeline(pipeline_input)
     print(pipe, pipeline_input, parameters, sep="\n")
@@ -160,7 +160,7 @@ if __name__ == "__main__":
         scoring="roc_auc",
         n_jobs=-1,
         verbose=2,
-        pre_dispatch=2,
+        pre_dispatch=10,
         error_score=-1
     )
     grid_search.fit(features, labels)
