@@ -142,7 +142,7 @@ if __name__ == "__main__":
             "clf__fit_intercept": [True, False],
             "clf__C": [0.01, 0.1, 1.0, 10.0, 100.0],
             # makes dual True if num samples is lequal to num features, false otherwise
-            "clf__dual": [len(features) <= len(features[0])],
+            "clf__dual": [features.shape[0] <= features.shape[1]],
             "clf__class_weight": ["balanced", None],
         })
     else:
