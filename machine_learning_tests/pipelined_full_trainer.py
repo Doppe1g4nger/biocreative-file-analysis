@@ -30,7 +30,7 @@ if __name__ == "__main__":
         arguments[key] = helpers.replace_pathvar_with_environ(arguments[key])
     # Extract triple of arrays from pickled docs, use doc_id for bag of words, fv_array for doc_prop vector    
     labels, fv_array, doc_ids = pickle.load(open(arguments["feature_vector"], "rb"))
-    print([len(x) for x in (labels, fv_array, doc_ids)])
+    print([len(x) for x in (labels, fv_array, doc_ids)], flush=True)
     # If ini specifies to use less than all documents, take a random sample of the zero terms
     if arguments["training_doc_count"] != "ALL":
         shuffle_size = None
@@ -84,7 +84,7 @@ if __name__ == "__main__":
             sublinear_tf=True
         )
         features = transf.fit_transform([arguments["document_path"] + idx + ".txt" for idx in doc_ids])
-        print(str((default_timer() - start) / 60))
+        print(str((default_timer() - start) / 60), flush=True)
         # pipeline_input.append(("tfidf_vect", TfidfVectorizer()))
         # parameters.update({
         #     "tfidf_vect__strip_accents": [None, "unicode"],
