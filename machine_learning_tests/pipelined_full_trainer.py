@@ -74,7 +74,7 @@ if __name__ == "__main__":
         transf = TfidfVectorizer(
             input="filename",
             strip_accents="unicode",
-            ngram_range=(1, 3),
+            ngram_range=(1, 1) if arguments.getboolean("1gram") else (1, 3),
             stop_words="english",
             max_df=0.85,
             norm="l1",
