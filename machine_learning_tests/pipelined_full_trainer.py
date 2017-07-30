@@ -72,7 +72,7 @@ if __name__ == "__main__":
     pipeline_input = []
     # Select between training method, set parameters and pipeline input for each option
     if arguments["training_method"] == "BOW":
-        pre_dispath = 4
+        pre_dispath = 1
         print((1, 1) if arguments.getboolean("1gram") else (1, 3), flush=True)
         start = default_timer()
         transf = TfidfVectorizer(
