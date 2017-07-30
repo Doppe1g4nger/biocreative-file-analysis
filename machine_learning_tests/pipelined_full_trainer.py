@@ -25,6 +25,7 @@ if __name__ == "__main__":
     config = configparser.ConfigParser()
     config.read(sys.argv[1])
     arguments = config[sys.argv[2]]
+    print(sys.argv[2])
     for key in arguments:
         arguments[key] = helpers.replace_pathvar_with_environ(arguments[key])
     # Extract triple of arrays from pickled docs, use doc_id for bag of words, fv_array for doc_prop vector    
@@ -70,6 +71,7 @@ if __name__ == "__main__":
     pipeline_input = []
     # Select between training method, set parameters and pipeline input for each option
     if arguments["training_method"] == "BOW":
+        print((1, 1) if arguments.getboolean("1gram") else (1, 3))
         start = default_timer()
         transf = TfidfVectorizer(
             input="filename",
@@ -174,4 +176,4 @@ if __name__ == "__main__":
     print(str((default_timer() - start) / 60))
     print(grid_search.best_score_, nested_score.mean(), grid_search.best_score_ - nested_score.mean(), sep=", ")
     print(grid_search.best_params_)
-    joblib.dump((grid_search, transf), arguments["classifier_path"])
+    joblib.dump((grid_search, transf), arguments["classifier_path"] + sys.argv[2] + ".joblib")
