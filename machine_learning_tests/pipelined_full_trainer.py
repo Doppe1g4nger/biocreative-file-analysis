@@ -26,6 +26,7 @@ if __name__ == "__main__":
     config.read(sys.argv[1])
     arguments = config[sys.argv[2]]
     print(sys.argv[2])
+    pre_dispath = 10
     for key in arguments:
         arguments[key] = helpers.replace_pathvar_with_environ(arguments[key])
     # Extract triple of arrays from pickled docs, use doc_id for bag of words, fv_array for doc_prop vector    
@@ -71,6 +72,7 @@ if __name__ == "__main__":
     pipeline_input = []
     # Select between training method, set parameters and pipeline input for each option
     if arguments["training_method"] == "BOW":
+        pre_dispath = 1
         print((1, 1) if arguments.getboolean("1gram") else (1, 3), flush=True)
         start = default_timer()
         transf = TfidfVectorizer(
@@ -160,7 +162,7 @@ if __name__ == "__main__":
         scoring="roc_auc",
         n_jobs=-1,
         verbose=2,
-        pre_dispatch=10,
+        pre_dispatch=pre_dispath,
         error_score=-1
     )
     grid_search.fit(features, labels)
