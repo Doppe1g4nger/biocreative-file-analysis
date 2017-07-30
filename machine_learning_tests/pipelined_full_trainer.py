@@ -71,7 +71,8 @@ if __name__ == "__main__":
     pipeline_input = []
     # Select between training method, set parameters and pipeline input for each option
     if arguments["training_method"] == "BOW":
-        print((1, 1) if arguments.getboolean("1gram") else (1, 3))
+        print("hello", flush=True)
+        print((1, 1) if arguments.getboolean("1gram") else (1, 3), flush=True)
         start = default_timer()
         transf = TfidfVectorizer(
             input="filename",
