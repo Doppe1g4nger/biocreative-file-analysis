@@ -5,6 +5,7 @@ from timeit import default_timer
 import numpy as np
 from random import shuffle
 from itertools import chain
+from math import floor
 
 from sklearn.externals import joblib
 from sklearn.naive_bayes import MultinomialNB
@@ -64,6 +65,7 @@ if __name__ == "__main__":
         # Cut down zero tuples to random size desired
         if not shuffle_size_too_big:
             shuffle(zero_tuples)
+            shuffle_size = floor(shuffle_size)
             zero_tuples = zero_tuples[:shuffle_size]
             # Reassign labels in ordered sequence and assign fvs and doc ids while maintaining pairings
             labels = [1 for i in range(len(one_tuples))] + [0 for i in range(len(zero_tuples))]
