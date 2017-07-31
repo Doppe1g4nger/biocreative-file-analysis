@@ -20,6 +20,8 @@ def calculate_kaw_scores(kinase_AA, axis_AA):
 def calculate_min_proximity(kinase_AA, axis_AA):
     axis_tokens = []
     kinase_tokens = []
+    under_10 = 0
+    under_50 = 0
     axis_attribs = axis_AA.list_of_attrib_dicts
     kinase_attribs = [kin for kin in kinase_AA.list_of_attrib_dicts if kin['DictCanon'] == rel_kinase]
     for attrib in axis_attribs:
@@ -34,8 +36,13 @@ def calculate_min_proximity(kinase_AA, axis_AA):
             dist = abs(k - a) / 10
             if dist < min_proximity:
                 min_proximity = dist
+            if dist < 10:
+                under_10 += 1
+            if dist < 50:
+                under_50 += 1
     p_hist.append(min_proximity)
-    return min_proximity
+
+    return [min_proximity, under_10, under_50]
 
 
 def process_doc(kinase, doc):
@@ -48,9 +55,9 @@ def process_doc(kinase, doc):
     min_proximity = calculate_min_proximity(kinase_AA, axis_AA)
 
     try:
-        metric_dict[kinase].append([doc] + kaw_scores + [min_proximity])
+        metric_dict[kinase].append([doc] + kaw_scores + min_proximity)
     except KeyError:
-        metric_dict[kinase] = [[doc] + kaw_scores + [min_proximity]]
+        metric_dict[kinase] = [[doc] + kaw_scores + min_proximity]
 
 
 def plot_hist(h):
@@ -76,6 +83,7 @@ if __name__ == "__main__":
     a_hist = []
     ka_hist = []
     p_hist = []
+
 
     pred_dict = load_obj(predicted_dictionary_input)
     dcounter = 0

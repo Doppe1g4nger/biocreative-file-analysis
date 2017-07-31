@@ -77,11 +77,11 @@ def plot_hist(h):
     pl.show()
 
 if __name__ == "__main__":
-    kinase_input_dir = r"/data/CM_output/Abst/Post-Processed/BandT/Kinase_BP_Test_RW"
-    axis_input_dir = r"/data/CM_output/Abst/Post-Processed/BandT/GO"
-    predicted_dictionary_input = r"/data/CM_output/Abst/Post-Processed/IR/Abst_GO_Test_IR.pkl"
-    word_count_dictionary_input = r"/data/CM_output/Abst/Post-Processed/BandT/Abst_wordcount.pkl"
-    output_file = r"/data/CM_output/Abst/Post-Processed/Features/Abst_GO_Test_Feat_proxcount.pkl"
+    kinase_input_dir = r"/data/CM_output/FT/Post-Processed/All/Kinase_DIS_Train_RW"
+    axis_input_dir = r"/data/CM_output/FT/Post-Processed/All/NCIT-Restricted"
+    predicted_dictionary_input = r"/data/CM_output/FT/Post-Processed/IR/FT_NCIT_Train_IR.pkl"
+    word_count_dictionary_input = r"/data/CM_output/FT/Post-Processed/All/FT_wordcount.pkl"
+    output_file = r"/data/CM_output/FT/Post-Processed/Features/FT_NCIT_Train_Feat_proxcount_dc.pkl"
     axis_tokens = []
     kinase_tokens = []
     metric_dict = {}
