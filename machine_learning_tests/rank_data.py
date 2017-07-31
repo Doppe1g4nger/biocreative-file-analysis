@@ -12,19 +12,36 @@ except ModuleNotFoundError:
 
 
 def docprop_ranking(param_tup):
-    features = param_tup[1].transform(param_tup[0][1].reshape(1, -1))
-    try:
-        return param_tup[0][0], param_tup[2].predict_proba(features)[0][1], param_tup[2].predict(features)
-    except AttributeError:
-        return param_tup[0][0], param_tup[2].decision_function(features)[0], param_tup[2].predict(features)
+    doc_id = param_tup[0][0]
+    doc_features = param_tup[0][1]
+    transf = param_tup[1]
+    clf = param_tup[2]
+    features = transf.transform(doc_features.reshape(1, -1))
+    if arguments["classifier_type"] == "SVM":
+        return doc_id, clf.predict_proba(features)[0][1], clf.predict(features)
+    else:
+        return doc_id, clf.decision_function(features)[0], clf.predict(features)
 
 
 def bow_ranking(param_tup):
-    features = param_tup[1].transform([arguments["document_path"] + param_tup[0] + ".txt"])
-    try:
-        return param_tup[0][0], param_tup[2].predict_proba(features)[0][1], param_tup[2].predict(features)
-    except AttributeError:
-        return param_tup[0][0], param_tup[2].decision_function(features)[0], param_tup[2].predict(features)
+    doc_id = param_tup[0]
+    transf = param_tup[1]
+    clf = param_tup[2]
+    features = transf.transform([arguments["document_path"] + doc_id + ".txt"])
+    if arguments["classifier_type"] == "SVM":
+        return doc_id, clf.predict_proba(features)[0][1], clf.predict(features)
+    else:
+        return doc_id, clf.decision_function(features)[0], clf.predict(features)
+
+
+def scale(result_list):
+    scaled_result = []
+    score_array = np.array([res[1] for res in result_list])
+    scaled = (score_array-np.min(score_array))/np.ptp(score_array)
+    scaled = list(scaled.tolist())
+    for i in range(len(scaled)):
+        scaled_result.append((result_list[i][0], scaled[i], result_list[i][2]))
+    return scaled_result
 
 if __name__ == "__main__":
     config = configparser.ConfigParser()
@@ -44,10 +61,12 @@ if __name__ == "__main__":
             for kinase, doc_set in in_dict.items():
                 with Pool() as p:
                     result = p.map(bow_ranking, [(doc, transformer, classifier) for doc in doc_set])
+                if arguments["classifier_type"] != "SVM":
+                    result = scale(result)
                 result = sorted(result, reverse=True, key=lambda x: x[1])
                 count = 0
                 for item in result:
-                    if count == 30 or (item[2] == 0 and count > 15):
+                    if count == 30:
                         break
                     count += 1
                     outfile.write(
@@ -64,10 +83,12 @@ if __name__ == "__main__":
                     )
         else:
             for kinase, values in in_dict.items():
-                doc_set = [(value[0], np.array(value[1:] + [0, 0])) for value in values]
+                doc_set = [(value[0], np.array(value[1:])) for value in values]
                 with Pool() as p:
                     result = p.map(docprop_ranking, [(val, transformer, classifier) for val in doc_set])
                 result = sorted(result, reverse=True, key=lambda x: x[1])
+                if arguments["classifier_type"] != "SVM":
+                    result = scale(result)
                 count = 0
                 for item in result:
                     if count == 30 or item[2] == 0:
