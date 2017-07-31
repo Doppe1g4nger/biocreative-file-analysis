@@ -56,7 +56,7 @@ if __name__ == "__main__":
             if (int(arguments["training_doc_count"][:-3]) / 100) * len(one_tuples) >= len(zero_tuples):
                 shuffle_size_too_big = True
             else:
-                shuffle_size = (int(arguments["training_doc_count"][:-3]) / 100) * len(one_tuples)
+                shuffle_size = (int(arguments["training_doc_count"][:-3]) / 100) * len(zero_tuples)
         else:
             # do nothing if requested size bigger than total zeroes
             shuffle_size = int(arguments["training_doc_count"])
