@@ -21,6 +21,10 @@ except ModuleNotFoundError:
     import helper_functions as helpers
 
 if __name__ == "__main__":
+    shortgs = ""
+    if len(sys.argv) >= 4:
+        if sys.argv[3] == "SHORTGS":
+            shortgs = "_SHORTGS"
     # Read in ini formatted config file passed as command line argument, replace path shortening variables
     config = configparser.ConfigParser()
     config.read(sys.argv[1])
@@ -108,18 +112,33 @@ if __name__ == "__main__":
     # Select among classifiers and set their parameters for GridSearchCV
     if arguments["classifier"] == "SVM":
         clf = SVC()
-        parameters.update({
-            "clf__probability": [True],
-            "clf__coef0": [0.5],
-            "clf__cache_size": [5000],
-            # "clf__C": [1.0],
-            "clf__degree": [3],
-            "clf__class_weight": ["balanced"],
-            "clf__C": [0.01, 0.1, 1.0, 10.0, 100.0],
-            # "clf__degree": [1, 2, 3],
-            "clf__kernel": ["rbf", "poly"],
-            # "clf__class_weight": ["balanced", None],
-        })
+        if shortgs == "_SHORTGS":
+            parameters.update({
+                "clf__probability": [True],
+                "clf__coef0": [0.5],
+                "clf__cache_size": [5000],
+                # "clf__C": [1.0],
+                "clf__degree": [3],
+                "clf__class_weight": ["balanced"],
+                "clf__C": [1.0],
+                # "clf__degree": [1, 2, 3],
+                "clf__kernel": ["rbf", "poly"],
+                # "clf__class_weight": ["balanced", None],
+            })
+            shortgs = "_SHORTGS"
+        else:
+            parameters.update({
+                "clf__probability": [True],
+                "clf__coef0": [0.5],
+                "clf__cache_size": [5000],
+                # "clf__C": [1.0],
+                "clf__degree": [3],
+                "clf__class_weight": ["balanced"],
+                "clf__C": [0.01, 0.1, 1.0, 10.0, 100.0],
+                # "clf__degree": [1, 2, 3],
+                "clf__kernel": ["rbf", "poly"],
+                # "clf__class_weight": ["balanced", None],
+            })
     elif arguments["classifier"] == "MNNB":
         clf = MultinomialNB()
         parameters.update({
@@ -178,4 +197,4 @@ if __name__ == "__main__":
     print(str((default_timer() - start) / 60))
     print(grid_search.best_score_, nested_score.mean(), grid_search.best_score_ - nested_score.mean(), sep=", ")
     print(grid_search.best_params_)
-    joblib.dump((grid_search, transf), arguments["classifier_path"] + sys.argv[2] + ".joblib")
+    joblib.dump((grid_search, transf), arguments["classifier_path"] + sys.argv[2] + shortgs + ".joblib")
