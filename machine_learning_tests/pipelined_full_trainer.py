@@ -21,10 +21,6 @@ except ModuleNotFoundError:
     import helper_functions as helpers
 
 if __name__ == "__main__":
-    shortgs = ""
-    if len(sys.argv) >= 4:
-        if sys.argv[3] == "SHORTGS":
-            shortgs = "_SHORTGS"
     # Read in ini formatted config file passed as command line argument, replace path shortening variables
     config = configparser.ConfigParser()
     config.read(sys.argv[1])
@@ -49,11 +45,17 @@ if __name__ == "__main__":
             else:
                 zero_tuples.append((fv_array[i], doc_ids[i]))
         # do nothing if the doc_count is a multiplier and requested size greater than total zeroes
-        if arguments.getboolean("doc_count_is_multiplier"):
-            if int(arguments["training_doc_count"]) * len(one_tuples) >= len(zero_tuples):
+        if arguments["training_doc_count"].startswith("x"):
+            if int(arguments["training_doc_count"][1:]) * len(one_tuples) >= len(zero_tuples):
                 shuffle_size_too_big = True
             else:
-                shuffle_size = int(arguments["training_doc_count"]) * len(one_tuples)
+                shuffle_size = int(arguments["training_doc_count"][1:]) * len(one_tuples)
+        # Do nothing if doc_count is a percent >= 100
+        elif arguments["training_doc_count"].endswith("%"):
+            if (int(arguments["training_doc_count"][:-1]) / 100) * len(one_tuples) >= len(zero_tuples):
+                shuffle_size_too_big = True
+            else:
+                shuffle_size = (int(arguments["training_doc_count"][:-1]) / 100) * len(one_tuples)
         else:
             # do nothing if requested size bigger than total zeroes
             shuffle_size = int(arguments["training_doc_count"])
@@ -112,22 +114,7 @@ if __name__ == "__main__":
     # Select among classifiers and set their parameters for GridSearchCV
     if arguments["classifier"] == "SVM":
         clf = SVC()
-        if shortgs == "_SHORTGS":
-            parameters.update({
-                "clf__probability": [True],
-                "clf__coef0": [0.5],
-                "clf__cache_size": [5000],
-                # "clf__C": [1.0],
-                "clf__degree": [3],
-                "clf__class_weight": ["balanced"],
-                "clf__C": [1.0],
-                # "clf__degree": [1, 2, 3],
-                "clf__kernel": ["rbf", "poly"],
-                # "clf__class_weight": ["balanced", None],
-            })
-            shortgs = "_SHORTGS"
-        else:
-            parameters.update({
+        parameters.update({
                 "clf__probability": [True],
                 "clf__coef0": [0.5],
                 "clf__cache_size": [5000],
@@ -138,7 +125,7 @@ if __name__ == "__main__":
                 # "clf__degree": [1, 2, 3],
                 "clf__kernel": ["rbf", "poly"],
                 # "clf__class_weight": ["balanced", None],
-            })
+        })
     elif arguments["classifier"] == "MNNB":
         clf = MultinomialNB()
         parameters.update({
@@ -197,4 +184,4 @@ if __name__ == "__main__":
     print(str((default_timer() - start) / 60))
     print(grid_search.best_score_, nested_score.mean(), grid_search.best_score_ - nested_score.mean(), sep=", ")
     print(grid_search.best_params_)
-    joblib.dump((grid_search, transf), arguments["classifier_path"] + sys.argv[2] + shortgs + ".joblib")
+    joblib.dump((grid_search, transf), arguments["classifier_path"] + sys.argv[2] + ".joblib")
