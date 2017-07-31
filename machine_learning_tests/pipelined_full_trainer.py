@@ -51,8 +51,8 @@ if __name__ == "__main__":
             else:
                 shuffle_size = int(arguments["training_doc_count"][1:]) * len(one_tuples)
         # Do nothing if doc_count is a percent >= 100
-        elif arguments["training_doc_count"].endswith("%"):
-            if (int(arguments["training_doc_count"][:-1]) / 100) * len(one_tuples) >= len(zero_tuples):
+        elif arguments["training_doc_count"].endswith("PER"):
+            if (int(arguments["training_doc_count"][:-3]) / 100) * len(one_tuples) >= len(zero_tuples):
                 shuffle_size_too_big = True
             else:
                 shuffle_size = (int(arguments["training_doc_count"][:-1]) / 100) * len(one_tuples)
