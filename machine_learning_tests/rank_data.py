@@ -1,8 +1,8 @@
-import pickle
 from sklearn.externals import joblib
+import numpy as np
+import pickle
 import configparser
 import sys
-import numpy as np
 import math
 
 try:
@@ -11,19 +11,18 @@ except ModuleNotFoundError:
     import helper_functions as helpers
 
 
-def sigmoid(x):
+def sigmoid_scale(x):
     return 1 / (1 + math.exp(-x))
 
 
 def scale(result_list):
-    return [(x[0], sigmoid(x[1]), x[2]) for x in result_list]
-    # scaled_result = []
-    # score_array = np.array([res[1] for res in result_list])
-    # scaled = (score_array-np.min(score_array))/np.ptp(score_array)
-    # scaled = scaled.tolist()
-    # for i in range(len(scaled)):
-    #     scaled_result.append((result_list[i][0], scaled[i], result_list[i][2]))
-    # return scaled_result
+    scaled_result = []
+    score_array = np.array([res[1] for res in result_list])
+    scaled = (score_array-np.min(score_array))/np.ptp(score_array)
+    scaled = scaled.tolist()
+    for i in range(len(scaled)):
+        scaled_result.append((result_list[i][0], scaled[i], result_list[i][2]))
+    return scaled_result
 
 if __name__ == "__main__":
     config = configparser.ConfigParser()
@@ -49,17 +48,13 @@ if __name__ == "__main__":
             else:
                 doc_ids = [value[0] for value in fvs]
                 features = [value[1:] for value in fvs]
-                print(doc_ids, features, sep="\n", flush=True)
                 features = transformer.transform(np.array(features))
-                print(features)
             confidence = classifier.decision_function(features)
             predictions = classifier.predict(features)
-            result = [(doc_ids[i], confidence[i], predictions[i]) for i in range(predictions.shape[0])]
-            print(result[:5], flush=True)
-            result = scale(result)
-            print(result[:5], flush=True)
+            result = [
+                (doc_ids[i], sigmoid_scale(confidence[i]), predictions[i]) for i in range(predictions.shape[0])
+            ]
             result = sorted(result, reverse=True, key=lambda x: x[1])
-            print(result[:5], flush=True)
             count = 0
             for item in result:
                 if count == 1000:
@@ -78,3 +73,5 @@ if __name__ == "__main__":
                         ]
                     )
                 )
+                if not count % 10:
+                    print(count)
