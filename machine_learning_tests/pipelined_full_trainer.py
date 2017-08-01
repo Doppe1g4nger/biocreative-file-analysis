@@ -28,7 +28,7 @@ if __name__ == "__main__":
     config.read(sys.argv[1])
     arguments = config[sys.argv[2]]
     print(sys.argv[2])
-    pre_dispath = 10
+    pre_dispath = 1
     for key in arguments:
         arguments[key] = helpers.replace_pathvar_with_environ(arguments[key])
     # Extract triple of arrays from pickled docs, use doc_id for bag of words, fv_array for doc_prop vector    
