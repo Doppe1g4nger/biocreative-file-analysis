@@ -72,6 +72,7 @@ if __name__ == "__main__":
     )
     classifier, transformer = joblib.load(arguments["classifier_path"])
     print(classifier, transformer)
+    print(classifier.classes_)
     with open(arguments["out_path"], "w") as outfile:
         in_dict = pickle.load(open(arguments["possible_matches"], "rb"))
         if arguments["training_method"] == "BOW":
