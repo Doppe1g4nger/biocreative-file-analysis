@@ -33,13 +33,14 @@ if __name__ == "__main__":
         arguments[key] = helpers.replace_pathvar_with_environ(arguments[key])
     # Extract triple of arrays from pickled docs, use doc_id for bag of words, fv_array for doc_prop vector    
     labels, fv_array, doc_ids = pickle.load(open(arguments["feature_vector"], "rb"))
-    test_dict = {}
-    for i in range(len(labels)):
-        test_dict[doc_ids[i]] = fv_array[i]
     print([len(x) for x in (labels, fv_array, doc_ids)], flush=True)
     print(labels[:5], fv_array[:5], doc_ids[:5], sep="\n", flush=True)
     # If ini specifies to use less than all documents, take a random sample of the zero terms
     if arguments["training_doc_count"] != "ALL":
+        one_doc_set = set()
+        zero_doc_set = set()
+        one_fv_set = set()
+        zero_fv_set = set()
         shuffle_size = None
         one_tuples = []
         zero_tuples = []
@@ -47,8 +48,12 @@ if __name__ == "__main__":
         # Split fvs and doc ids by label
         for i in range(len(labels)):
             if labels[i]:
+                one_doc_set.add(doc_ids[i])
+                one_fv_set.add(fv_array[i])
                 one_tuples.append((fv_array[i], doc_ids[i]))
             else:
+                zero_doc_set.add(doc_ids[i])
+                zero_fv_set.add(fv_array[i])
                 zero_tuples.append((fv_array[i], doc_ids[i]))
         # do nothing if the doc_count is a multiplier and requested size greater than total zeroes
         if arguments["training_doc_count"].startswith("x"):
@@ -77,8 +82,12 @@ if __name__ == "__main__":
             fv_array = [item[0] for item in chain(one_tuples, zero_tuples)]
             doc_ids = [item[1] for item in chain(one_tuples, zero_tuples)]
             for i in range(len(labels)):
-                if test_dict[doc_ids[i]] != fv_array[i]:
-                    raise ValueError("Ya done messed up")
+                if labels[i]:
+                    if fv_array[i] not in one_fv_set or doc_ids[i] not in one_doc_set:
+                        raise ValueError("blah")
+                    else:
+                        if fv_array[i] not in zero_fv_set or doc_ids[i] not in zero_fv_set:
+                            raise ValueError("blah")
             # print(len(zero_tuples), zero_tuples[:5])
             # print(len(one_tuples), one_tuples[:5])
             # print(labels)
