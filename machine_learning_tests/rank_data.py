@@ -15,11 +15,12 @@ except ModuleNotFoundError:
 def docprop_ranking(param_tup):
     doc_id = param_tup[0][0]
     doc_features = param_tup[0][1]
-    print(doc_features, flush=True)
     transf = param_tup[1]
     clf = param_tup[2]
     features = transf.transform(doc_features.reshape(1, -1))
     print(features, flush=True)
+    if clf.predict(features) == 1:
+        print("!!!", flush=True)
     if arguments["classifier_type"] == "SVM":
         return doc_id, clf.predict_proba(features)[0][1], clf.predict(features)
     else:
@@ -31,6 +32,8 @@ def bow_ranking(param_tup):
     transf = param_tup[1]
     clf = param_tup[2]
     features = transf.transform([arguments["document_path"] + doc_id + ".txt"])
+    if clf.predict(features) == 1:
+        print("!!!", flush=True)
     if arguments["classifier_type"] == "SVM":
         return doc_id, clf.predict_proba(features)[0][1], clf.predict(features)
     else:
@@ -63,11 +66,12 @@ if __name__ == "__main__":
         )
     )
     classifier, transformer = joblib.load(arguments["classifier_path"])
+    print(classifier, transformer, sep="\n")
     with open(arguments["out_path"], "w") as outfile:
         in_dict = pickle.load(open(arguments["possible_matches"], "rb"))
-        print(in_dict, flush=True)
         if arguments["training_method"] == "BOW":
             for kinase, doc_set in in_dict.items():
+                print(kinase, doc_set[:5])
                 with Pool() as p:
                     result = p.map(bow_ranking, [(doc, transformer, classifier) for doc in doc_set])
                     print(result[:5], flush=True)
@@ -94,10 +98,11 @@ if __name__ == "__main__":
                             ]
                         )
                     )
+                break
         else:
             for kinase, values in in_dict.items():
                 doc_set = [(value[0], np.array(value[1:])) for value in values]
-                print(doc_set, flush=True)
+                print(doc_set[:5], flush=True)
                 with Pool() as p:
                     result = p.map(docprop_ranking, [(val, transformer, classifier) for val in doc_set])
                     print(result[:5], flush=True)
@@ -133,3 +138,4 @@ if __name__ == "__main__":
                             "\n"
                         ]
                     ), flush=True)
+                break
