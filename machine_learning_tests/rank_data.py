@@ -2,7 +2,6 @@ import pickle
 from sklearn.externals import joblib
 import configparser
 import sys
-from multiprocessing import Pool
 import numpy as np
 import math
 
@@ -10,39 +9,6 @@ try:
     from machine_learning_tests import helper_functions as helpers
 except ModuleNotFoundError:
     import helper_functions as helpers
-
-
-def docprop_ranking(param_tup):
-    doc_id = param_tup[0][0]
-    doc_features = param_tup[0][1]
-    transf = param_tup[1]
-    clf = param_tup[2]
-    print(doc_features)
-    features = transf.transform(np.array(doc_features))
-    features = features.reshape(1, -1)
-    print(features)
-    if clf.predict(features)[0] == 1:
-        print("!!!", flush=True)
-    if arguments["classifier_type"] == "SVM":
-        print(doc_id, clf.predict_proba(features), clf.predict(features), flush=True)
-        return doc_id, clf.predict_proba(features)[0][1], clf.predict(features)
-    else:
-        print(doc_id, clf.decision_function(features), clf.predict(features), flush=True)
-        return doc_id, clf.decision_function(features)[0], clf.predict(features)
-
-
-def bow_ranking(param_tup):
-    doc_id = param_tup[0]
-    transf = param_tup[1]
-    clf = param_tup[2]
-    print(transf, clf.classes_)
-    features = transf.transform([arguments["document_path"] + doc_id + ".txt"])
-    if clf.predict(features) == 1:
-        print("!!!", flush=True)
-    if arguments["classifier_type"] == "SVM":
-        return doc_id, clf.predict_proba(features)[0][1], clf.predict(features)
-    else:
-        return doc_id, clf.decision_function(features)[0], clf.predict(features)
 
 
 def sigmoid(x):
@@ -66,29 +32,30 @@ if __name__ == "__main__":
     for key in arguments:
         arguments[key] = helpers.replace_pathvar_with_environ(arguments[key])
     canon_to_id = pickle.load(
-        open(
-            helpers.replace_pathvar_with_environ("$STORE/kinase_canonical_to_nxtprot_id.pkl"), "rb"
-        )
+        open(helpers.replace_pathvar_with_environ("$STORE/kinase_canonical_to_nxtprot_id.pkl"), "rb")
     )
     classifier, transformer = joblib.load(arguments["classifier_path"])
-    print(classifier, transformer)
-    print(classifier.classes_)
     with open(arguments["out_path"], "w") as outfile:
         in_dict = pickle.load(open(arguments["possible_matches"], "rb"))
         if arguments["training_method"] == "BOW":
             for kinase, doc_set in in_dict.items():
-                print(kinase, doc_set[:5])
-                with Pool() as p:
-                    result = p.map(bow_ranking, [(doc, transformer, classifier) for doc in doc_set])
-                    print(result[:5], flush=True)
-                if arguments["classifier_type"] != "SVM":
-                    result = scale(result)
-                    print(result[:5], flush=True)
+                features = transformer.transform(
+                    [arguments["document_path"] + doc_id + ".txt" for doc_id in doc_set]
+                )
+                print(features)
+                predictions = classifier.decision_function(features)
+                print(predictions)
+                for i in range(predictions.shape[0]):
+                    print(doc_set[i], features[i], predictions[i])
+                result = [(doc_set[i], features[i], predictions[i]) for i in range(predictions.shape[0])]
+                print(result[:5], flush=True)
+                result = scale(result)
+                print(result[:5], flush=True)
                 result = sorted(result, reverse=True, key=lambda x: x[1])
                 print(result[:5], flush=True)
                 count = 0
                 for item in result:
-                    if count == 30:
+                    if count == 100:
                         break
                     count += 1
                     outfile.write(
@@ -110,17 +77,18 @@ if __name__ == "__main__":
                 print(values[:5], flush=True)
                 doc_set = [(value[0], value[1:]) for value in values]
                 print(doc_set[:5], flush=True)
-                fvs = [x[1] for x in doc_set]
-                print(fvs)
-                fvs = transformer.transform(np.array(fvs))
-                print(classifier.predict(fvs))
-                print(classifier.predict_proba(fvs))
-                with Pool() as p:
-                    result = p.map(docprop_ranking, [(val, transformer, classifier) for val in doc_set])
-                    print(result[:5], flush=True)
-                if arguments["classifier_type"] != "SVM":
-                    result = scale(result)
-                    print(result[:5], flush=True)
+                features = [x[1] for x in doc_set]
+                print(features)
+                features = transformer.transform(np.array(features))
+                print(features)
+                predictions = classifier.decision_function(features)
+                print(predictions)
+                for i in range(predictions.shape[0]):
+                    print(doc_set[i], features[i], predictions[i])
+                result = [(doc_set[i], features[i], predictions[i]) for i in range(predictions.shape[0])]
+                print(result[:5], flush=True)
+                result = scale(result)
+                print(result[:5], flush=True)
                 result = sorted(result, reverse=True, key=lambda x: x[1])
                 print(result[:5], flush=True)
                 count = 0

@@ -36,7 +36,7 @@ if __name__ == "__main__":
     for i in range(len(labels)):
         test_dict[doc_ids[i]] = fv_array[i]
     print([len(x) for x in (labels, fv_array, doc_ids)], flush=True)
-    print(labels[:5], fv_array[:5], doc_ids[:5], sep="\n")
+    print(labels[:5], fv_array[:5], doc_ids[:5], sep="\n", flush=True)
     # If ini specifies to use less than all documents, take a random sample of the zero terms
     if arguments["training_doc_count"] != "ALL":
         shuffle_size = None
@@ -87,7 +87,6 @@ if __name__ == "__main__":
     pipeline_input = []
     # Select between training method, set parameters and pipeline input for each option
     if arguments["training_method"] == "BOW":
-        pre_dispath = 1
         print((1, 1) if arguments.getboolean("1gram") else (1, 3), flush=True)
         start = default_timer()
         transf = TfidfVectorizer(
@@ -125,7 +124,6 @@ if __name__ == "__main__":
     if arguments["classifier"] == "SVM":
         clf = SVC()
         parameters.update({
-                "clf__probability": [True],
                 "clf__coef0": [0.5],
                 "clf__cache_size": [5000],
                 # "clf__C": [1.0],
