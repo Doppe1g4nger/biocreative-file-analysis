@@ -28,7 +28,7 @@ if __name__ == "__main__":
     config = configparser.ConfigParser()
     config.read(sys.argv[1])
     arguments = config[sys.argv[2]]
-    print(sys.argv[2])
+    print(sys.argv[2], flush=True)
     for key in arguments:
         arguments[key] = helpers.replace_pathvar_with_environ(arguments[key])
     canon_to_id = pickle.load(
@@ -73,4 +73,4 @@ if __name__ == "__main__":
                     )
                 )
                 if not count % 10:
-                    print(count)
+                    print(count, flush=True)
