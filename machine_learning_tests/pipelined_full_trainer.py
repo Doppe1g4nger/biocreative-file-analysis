@@ -32,7 +32,11 @@ if __name__ == "__main__":
         arguments[key] = helpers.replace_pathvar_with_environ(arguments[key])
     # Extract triple of arrays from pickled docs, use doc_id for bag of words, fv_array for doc_prop vector    
     labels, fv_array, doc_ids = pickle.load(open(arguments["feature_vector"], "rb"))
+    test_dict = {}
+    for i in range(len(labels)):
+        test_dict[labels[i]] = fv_array[i]
     print([len(x) for x in (labels, fv_array, doc_ids)], flush=True)
+    print(labels[:5], fv_array[:5], doc_ids[:5], sep="\n")
     # If ini specifies to use less than all documents, take a random sample of the zero terms
     if arguments["training_doc_count"] != "ALL":
         shuffle_size = None
@@ -71,6 +75,9 @@ if __name__ == "__main__":
             labels = [1 for i in range(len(one_tuples))] + [0 for i in range(len(zero_tuples))]
             fv_array = [item[0] for item in chain(one_tuples, zero_tuples)]
             doc_ids = [item[1] for item in chain(one_tuples, zero_tuples)]
+            for i in range(len(labels)):
+                if test_dict[labels[i]] != fv_array[i]:
+                    raise ValueError("Ya done messed up")
             # print(len(zero_tuples), zero_tuples[:5])
             # print(len(one_tuples), one_tuples[:5])
             # print(labels)

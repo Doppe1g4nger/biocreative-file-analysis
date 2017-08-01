@@ -18,15 +18,15 @@ def docprop_ranking(param_tup):
     transf = param_tup[1]
     clf = param_tup[2]
     print(doc_features)
-    doc_features.reshape(1, -1)
-    print(doc_features)
-    features = transf.transform(doc_features)
-    print(param_tup, features, flush=True)
+    features = transf.fit_transform(np.array(doc_features))
+    print(features)
     if clf.predict(features)[0] == 1:
         print("!!!", flush=True)
     if arguments["classifier_type"] == "SVM":
+        print(doc_id, clf.predict_proba(features), clf.predict(features))
         return doc_id, clf.predict_proba(features)[0][1], clf.predict(features)
     else:
+        print(doc_id, clf.decision_function(features), clf.predict(features))
         return doc_id, clf.decision_function(features)[0], clf.predict(features)
 
 
@@ -34,6 +34,7 @@ def bow_ranking(param_tup):
     doc_id = param_tup[0]
     transf = param_tup[1]
     clf = param_tup[2]
+    print(transf, clf)
     features = transf.transform([arguments["document_path"] + doc_id + ".txt"])
     if clf.predict(features) == 1:
         print("!!!", flush=True)
@@ -69,6 +70,7 @@ if __name__ == "__main__":
         )
     )
     classifier, transformer = joblib.load(arguments["classifier_path"])
+    print(classifier, transformer)
     with open(arguments["out_path"], "w") as outfile:
         in_dict = pickle.load(open(arguments["possible_matches"], "rb"))
         if arguments["training_method"] == "BOW":
@@ -103,7 +105,8 @@ if __name__ == "__main__":
                 break
         else:
             for kinase, values in in_dict.items():
-                doc_set = [(value[0], np.array(value[1:])) for value in values]
+                print(values[:5], flush=True)
+                doc_set = [(value[0], value[1:]) for value in values]
                 print(doc_set[:5], flush=True)
                 with Pool() as p:
                     result = p.map(docprop_ranking, [(val, transformer, classifier) for val in doc_set])
