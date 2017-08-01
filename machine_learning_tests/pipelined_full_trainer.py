@@ -37,10 +37,10 @@ if __name__ == "__main__":
     print(labels[:5], fv_array[:5], doc_ids[:5], sep="\n", flush=True)
     # If ini specifies to use less than all documents, take a random sample of the zero terms
     if arguments["training_doc_count"] != "ALL":
-        one_doc_set = set()
-        zero_doc_set = set()
-        one_fv_set = set()
-        zero_fv_set = set()
+        one_doc_set = []
+        zero_doc_set = []
+        one_fv_set = []
+        zero_fv_set = []
         shuffle_size = None
         one_tuples = []
         zero_tuples = []
@@ -48,12 +48,12 @@ if __name__ == "__main__":
         # Split fvs and doc ids by label
         for i in range(len(labels)):
             if labels[i]:
-                one_doc_set.add(doc_ids[i])
-                one_fv_set.add(fv_array[i])
+                one_doc_set.append(doc_ids[i])
+                one_fv_set.append(fv_array[i])
                 one_tuples.append((fv_array[i], doc_ids[i]))
             else:
-                zero_doc_set.add(doc_ids[i])
-                zero_fv_set.add(fv_array[i])
+                zero_doc_set.append(doc_ids[i])
+                zero_fv_set.append(fv_array[i])
                 zero_tuples.append((fv_array[i], doc_ids[i]))
         # do nothing if the doc_count is a multiplier and requested size greater than total zeroes
         if arguments["training_doc_count"].startswith("x"):
@@ -84,9 +84,11 @@ if __name__ == "__main__":
             for i in range(len(labels)):
                 if labels[i]:
                     if fv_array[i] not in one_fv_set or doc_ids[i] not in one_doc_set:
+                        print(fv_array[i], doc_ids[i])
                         raise ValueError("blah")
                     else:
                         if fv_array[i] not in zero_fv_set or doc_ids[i] not in zero_fv_set:
+                            print(fv_array[i], doc_ids[i])
                             raise ValueError("blah")
             # print(len(zero_tuples), zero_tuples[:5])
             # print(len(one_tuples), one_tuples[:5])
