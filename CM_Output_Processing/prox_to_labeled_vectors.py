@@ -10,9 +10,9 @@ def load_obj(name):
         return pickle.load(f)
 
 if __name__ == "__main__":
-    prox_dictionary_loc = r"/data/CM_output/Abst/Post-Processed/Features/Abst_NCIT_Test_Feat_proxcount.pkl"
-    labeled_positives_loc = r'/data/TrainingCanonicalNames_ToDocID_dicts/DIS_abs_test_canon_to_docid_dict.pkl'
-    output_pickle = r"/data/CM_output/Abst/Post-Processed/FV/Abst_NCIT_Test_FV_proxcount.pkl"
+    prox_dictionary_loc = r"/data/CM_output/FT/Post-Processed/Features/FT_GO_Train_Feat_proxcount_dc.pkl"
+    labeled_positives_loc = r'/data/TrainingCanonicalNames_ToDocID_dicts/BP_ft_train_canon_to_docid_dict.pkl'
+    output_pickle = r"/data/CM_output/FT/Post-Processed/FV/FT_GO_Train_FV_dc.pkl"
     prox_dict = load_obj(prox_dictionary_loc)
     labeled_pos_dict = load_obj(labeled_positives_loc)
     features = []
@@ -22,7 +22,7 @@ if __name__ == "__main__":
     for kinase in prox_dict:
         for doc in prox_dict[kinase]:
             try:
-                doc_id = doc[0][4:] # REMOVE THE [4:] IF USING PMC IDS!
+                doc_id = doc[0]#[4:] # REMOVE THE [4:] IF USING PMC IDS!
                 if doc_id in labeled_pos_dict[kinase]:
                     labels.append(1)
                 else:

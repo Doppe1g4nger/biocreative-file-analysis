@@ -15,6 +15,7 @@ def get_prox_endpoints(rel_kinase, axis_AA, kinase_AA):
     min_axis = (0, 0, 0)
     min_kinase = (0, 0, 0)
     nextprot_dict = load_obj(r"/data/Task3/kinase_canonical_to_nxtprot_id.pkl")
+
     kinase_attribs = [kin for kin in kinase_AA.list_of_attrib_dicts if nextprot_dict[kin['DictCanon']] == rel_kinase]
     for attrib in axis_attribs:
         for token in attrib['matchedTokens'].split(" "):
@@ -26,14 +27,22 @@ def get_prox_endpoints(rel_kinase, axis_AA, kinase_AA):
     for k in kinase_tokens:
         for a in axis_tokens:
             dist = abs(k[0] - a[0]) / 10
-            if dist < min_proximity:
+            if dist <= min_proximity:
                 min_proximity = dist
                 min_kinase = k
                 min_axis = a
 
     endpoints = [min_kinase[1], min_kinase[2], min_axis[1], min_axis[2]]
+
     begin = min(endpoints)
     end = max(endpoints)
+
+
+    print(rel_kinase)
+    print(len(kinase_attribs))
+    print(endpoints)
+    print(min_proximity)
+    print("")
 
     return begin, end
 
@@ -91,10 +100,10 @@ def cut_snippet(start_char, end_char, fulltext):
 
 if __name__ == "__main__":
     fulltext_dir = r"/data/CM_input/FullText/FullTexts_All"
-    kinase_AA_dir = r"/data/CM_output/FT/Post-Processed/All/Kinase_DIS_Test_RW_default_pp"
-    axis_AA_dir = r"/data/Task3/FT_T3/NCIT"
+    kinase_AA_dir = r"/data/CM_output/FT/Post-Processed/All/Kinase_DIS_Train_RW"
+    axis_AA_dir = r"/data/CM_output/FT/Post-Processed/All/NCIT-Restricted"
     input_xml_file = r'/data/task3testdata/DIS_test_topics.xml'
-    output_tsv_file = "/data/Task3/jhunj.tsv"
+    output_tsv_file = "/data/Task3/Snippets_NCIT_junk.tsv"
 
     kinase_dict = build_dictionary(input_xml_file)
 
@@ -106,7 +115,7 @@ if __name__ == "__main__":
         with open(path.join(fulltext_dir, kinase_dict[kinase] + ".txt"), 'r') as f:
             fulltext = f.read().replace('\n', "")
 
-        snip = cut_snippet(start_char, end_char, fulltext)
+        snip = cut_snippet(int(start_char), int(end_char), fulltext)
 
         print(kinase + "\tDIS\t" + kinase_dict[kinase] + "\t" + snip)
 
