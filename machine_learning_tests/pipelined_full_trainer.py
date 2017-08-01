@@ -22,6 +22,7 @@ except ModuleNotFoundError:
     import helper_functions as helpers
 
 if __name__ == "__main__":
+    max_feats = 100000
     # Read in ini formatted config file passed as command line argument, replace path shortening variables
     config = configparser.ConfigParser()
     config.read(sys.argv[1])
@@ -57,7 +58,7 @@ if __name__ == "__main__":
                 shuffle_size = int(arguments["training_doc_count"][1:]) * len(one_tuples)
         # Do nothing if doc_count is a percent >= 100
         elif arguments["training_doc_count"].endswith("PER"):
-            if (int(arguments["training_doc_count"][:-3]) / 100) * len(one_tuples) >= len(zero_tuples):
+            if (int(arguments["training_doc_count"][:-3]) / 100) * len(zero_tuples) >= len(zero_tuples):
                 shuffle_size_too_big = True
             else:
                 shuffle_size = (int(arguments["training_doc_count"][:-3]) / 100) * len(zero_tuples)
@@ -97,7 +98,7 @@ if __name__ == "__main__":
             max_df=0.85,
             norm="l1",
             sublinear_tf=True,
-            max_features=100000
+            max_features=max_feats,
         )
         features = transf.fit_transform([arguments["document_path"] + idx + ".txt" for idx in doc_ids])
         print(str((default_timer() - start) / 60), flush=True)
@@ -192,4 +193,5 @@ if __name__ == "__main__":
     print(str((default_timer() - start) / 60))
     print(grid_search.best_score_, nested_score.mean(), grid_search.best_score_ - nested_score.mean(), sep=", ")
     print(grid_search.best_params_)
-    joblib.dump((grid_search, transf), arguments["classifier_path"] + sys.argv[2] + ".joblib")
+    joblib.dump((grid_search, transf), arguments["classifier_path"] + sys.argv[2]
+                + ("_{}feats".format(max_feats) if max_feats != -1 else "") + ".joblib")
