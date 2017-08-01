@@ -74,18 +74,18 @@ if __name__ == "__main__":
                 break
         else:
             for kinase, values in in_dict.items():
-                print(values[:5], flush=True)
                 doc_set = [(value[0], value[1:]) for value in values]
-                print(doc_set[:5], flush=True)
                 features = [x[1] for x in doc_set]
                 print(features)
                 features = transformer.transform(np.array(features))
                 print(features)
                 predictions = classifier.decision_function(features)
                 print(predictions)
+                cls = classifier.predict(features)
+                print(cls)
                 for i in range(predictions.shape[0]):
-                    print(doc_set[i], features[i], predictions[i])
-                result = [(doc_set[i], features[i], predictions[i]) for i in range(predictions.shape[0])]
+                    print(doc_set[i][0], features[i], predictions[i])
+                result = [(doc_set[i][0], predictions[i], cls[i]) for i in range(predictions.shape[0])]
                 print(result[:5], flush=True)
                 result = scale(result)
                 print(result[:5], flush=True)
@@ -93,7 +93,7 @@ if __name__ == "__main__":
                 print(result[:5], flush=True)
                 count = 0
                 for item in result:
-                    if count == 100:
+                    if count == 1000:
                         break
                     count += 1
                     outfile.write(
