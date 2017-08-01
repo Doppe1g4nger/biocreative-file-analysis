@@ -18,15 +18,15 @@ def docprop_ranking(param_tup):
     transf = param_tup[1]
     clf = param_tup[2]
     print(doc_features)
-    features = transf.fit_transform(np.array(doc_features))
+    features = transf.transform(np.array(doc_features))
     print(features)
     if clf.predict(features)[0] == 1:
         print("!!!", flush=True)
     if arguments["classifier_type"] == "SVM":
-        print(doc_id, clf.predict_proba(features), clf.predict(features))
+        print(doc_id, clf.predict_proba(features), clf.predict(features), flush=True)
         return doc_id, clf.predict_proba(features)[0][1], clf.predict(features)
     else:
-        print(doc_id, clf.decision_function(features), clf.predict(features))
+        print(doc_id, clf.decision_function(features), clf.predict(features), flush=True)
         return doc_id, clf.decision_function(features)[0], clf.predict(features)
 
 
@@ -34,7 +34,7 @@ def bow_ranking(param_tup):
     doc_id = param_tup[0]
     transf = param_tup[1]
     clf = param_tup[2]
-    print(transf, clf)
+    print(transf, clf.classes_)
     features = transf.transform([arguments["document_path"] + doc_id + ".txt"])
     if clf.predict(features) == 1:
         print("!!!", flush=True)
