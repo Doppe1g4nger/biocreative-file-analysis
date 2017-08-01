@@ -29,93 +29,52 @@ if __name__ == "__main__":
     config = configparser.ConfigParser()
     config.read(sys.argv[1])
     arguments = config[sys.argv[2]]
+    print(sys.argv[2])
     for key in arguments:
         arguments[key] = helpers.replace_pathvar_with_environ(arguments[key])
     canon_to_id = pickle.load(
         open(helpers.replace_pathvar_with_environ("$STORE/kinase_canonical_to_nxtprot_id.pkl"), "rb")
     )
     classifier, transformer = joblib.load(arguments["classifier_path"])
+    print(classifier, transformer)
     with open(arguments["out_path"], "w") as outfile:
         in_dict = pickle.load(open(arguments["possible_matches"], "rb"))
-        if arguments["training_method"] == "BOW":
-            for kinase, doc_set in in_dict.items():
+        for kinase, fvs in in_dict.items():
+            if arguments["training_method"] == "BOW":
                 features = transformer.transform(
-                    [arguments["document_path"] + doc_id + ".txt" for doc_id in doc_set]
+                    [arguments["document_path"] + doc_id + ".txt" for doc_id in fvs]
                 )
-                print(features)
-                predictions = classifier.decision_function(features)
-                print(predictions)
-                for i in range(predictions.shape[0]):
-                    print(doc_set[i], features[i], predictions[i])
-                result = [(doc_set[i], features[i], predictions[i]) for i in range(predictions.shape[0])]
-                print(result[:5], flush=True)
-                result = scale(result)
-                print(result[:5], flush=True)
-                result = sorted(result, reverse=True, key=lambda x: x[1])
-                print(result[:5], flush=True)
-                count = 0
-                for item in result:
-                    if count == 100:
-                        break
-                    count += 1
-                    outfile.write(
-                        " ".join(
-                            [
-                                canon_to_id[kinase],
-                                "dummy",
-                                item[0],
-                                str(count),
-                                str(round(item[1] * 100, 2)),
-                                arguments["run_id"],
-                                "\n"
-                            ]
-                        )
-                    )
-                break
-        else:
-            for kinase, values in in_dict.items():
-                doc_set = [(value[0], value[1:]) for value in values]
-                features = [x[1] for x in doc_set]
-                print(features)
+                doc_ids = fvs.copy()
+                print(doc_ids, features, sep="\n", flush=True)
+            else:
+                doc_ids = [value[0] for value in fvs]
+                features = [value[1:] for value in fvs]
+                print(doc_ids, features, sep="\n", flush=True)
                 features = transformer.transform(np.array(features))
                 print(features)
-                predictions = classifier.decision_function(features)
-                print(predictions)
-                cls = classifier.predict(features)
-                print(cls)
-                for i in range(predictions.shape[0]):
-                    print(doc_set[i][0], features[i], predictions[i])
-                result = [(doc_set[i][0], predictions[i], cls[i]) for i in range(predictions.shape[0])]
-                print(result[:5], flush=True)
-                result = scale(result)
-                print(result[:5], flush=True)
-                result = sorted(result, reverse=True, key=lambda x: x[1])
-                print(result[:5], flush=True)
-                count = 0
-                for item in result:
-                    if count == 1000:
-                        break
-                    count += 1
-                    outfile.write(
-                        " ".join(
-                            [
-                                canon_to_id[kinase],
-                                "dummy", item[0],
-                                str(count),
-                                str(round(item[1] * 100, 2)),
-                                arguments["run_id"],
-                                "\n"
-                            ]
-                        )
-                    )
-                    print(" ".join(
+            confidence = classifier.decision_function(features)
+            predictions = classifier.predict(features)
+            result = [(doc_ids[i], confidence[i], predictions[i]) for i in range(predictions.shape[0])]
+            print(result[:5], flush=True)
+            result = scale(result)
+            print(result[:5], flush=True)
+            result = sorted(result, reverse=True, key=lambda x: x[1])
+            print(result[:5], flush=True)
+            count = 0
+            for item in result:
+                if count == 1000:
+                    break
+                count += 1
+                outfile.write(
+                    " ".join(
                         [
                             canon_to_id[kinase],
-                            "dummy", item[0],
+                            "dummy",
+                            item[0],
                             str(count),
                             str(round(item[1] * 100, 2)),
                             arguments["run_id"],
                             "\n"
                         ]
-                    ), flush=True)
-                break
+                    )
+                )
