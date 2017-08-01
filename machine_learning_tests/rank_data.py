@@ -62,7 +62,6 @@ if __name__ == "__main__":
             helpers.replace_pathvar_with_environ("$STORE/kinase_canonical_to_nxtprot_id.pkl"), "rb"
         )
     )
-    print(canon_to_id, flush=True)
     classifier, transformer = joblib.load(arguments["classifier_path"])
     with open(arguments["out_path"], "w") as outfile:
         in_dict = pickle.load(open(arguments["possible_matches"], "rb"))
