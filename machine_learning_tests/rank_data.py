@@ -109,7 +109,8 @@ if __name__ == "__main__":
                 print(values[:5], flush=True)
                 doc_set = [(value[0], value[1:]) for value in values]
                 print(doc_set[:5], flush=True)
-                fvs = [x[1] for x in values]
+                fvs = [x[1] for x in doc_set]
+                print(fvs)
                 fvs = transformer.transform(np.array(fvs))
                 print(classifier.predict(fvs))
                 print(classifier.predict_proba(fvs))
