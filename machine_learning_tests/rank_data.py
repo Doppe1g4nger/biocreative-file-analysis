@@ -44,7 +44,6 @@ if __name__ == "__main__":
                     [arguments["document_path"] + doc_id + ".txt" for doc_id in fvs]
                 )
                 doc_ids = fvs.copy()
-                print(doc_ids, features, sep="\n", flush=True)
             else:
                 doc_ids = [value[0] for value in fvs]
                 features = [value[1:] for value in fvs]
