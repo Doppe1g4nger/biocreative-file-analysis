@@ -17,9 +17,12 @@ def docprop_ranking(param_tup):
     doc_features = param_tup[0][1]
     transf = param_tup[1]
     clf = param_tup[2]
-    features = transf.transform(doc_features.reshape(1, -1))
-    print(features, flush=True)
-    if clf.predict(features) == 1:
+    print(doc_features)
+    doc_features.reshape(1, -1)
+    print(doc_features)
+    features = transf.transform(doc_features)
+    print(param_tup, features, flush=True)
+    if clf.predict(features)[0] == 1:
         print("!!!", flush=True)
     if arguments["classifier_type"] == "SVM":
         return doc_id, clf.predict_proba(features)[0][1], clf.predict(features)
@@ -66,7 +69,6 @@ if __name__ == "__main__":
         )
     )
     classifier, transformer = joblib.load(arguments["classifier_path"])
-    print(classifier, transformer, sep="\n")
     with open(arguments["out_path"], "w") as outfile:
         in_dict = pickle.load(open(arguments["possible_matches"], "rb"))
         if arguments["training_method"] == "BOW":
@@ -82,7 +84,7 @@ if __name__ == "__main__":
                 print(result[:5], flush=True)
                 count = 0
                 for item in result:
-                    if count == 30 or item[2] == 0:
+                    if count == 30:
                         break
                     count += 1
                     outfile.write(
@@ -113,7 +115,7 @@ if __name__ == "__main__":
                 print(result[:5], flush=True)
                 count = 0
                 for item in result:
-                    if count == 30 or item[2] == 0:
+                    if count == 30:
                         break
                     count += 1
                     outfile.write(
