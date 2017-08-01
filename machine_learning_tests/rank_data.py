@@ -38,7 +38,9 @@ if __name__ == "__main__":
     print(classifier, transformer)
     with open(arguments["out_path"], "w") as outfile:
         in_dict = pickle.load(open(arguments["possible_matches"], "rb"))
+        kin_count = 0
         for kinase, fvs in in_dict.items():
+            kin_count += 1
             if arguments["training_method"] == "BOW":
                 features = transformer.transform(
                     [arguments["document_path"] + doc_id + ".txt" for doc_id in fvs]
@@ -72,5 +74,5 @@ if __name__ == "__main__":
                         ]
                     )
                 )
-                if not count % 10:
-                    print(count, flush=True)
+            if not kin_count % 10:
+                print(count, flush=True)
