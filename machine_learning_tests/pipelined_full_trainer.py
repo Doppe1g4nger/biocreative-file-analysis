@@ -37,6 +37,11 @@ if __name__ == "__main__":
     print(labels[:5], fv_array[:5], doc_ids[:5], sep="\n", flush=True)
     # If ini specifies to use less than all documents, take a random sample of the zero terms
     if arguments["training_doc_count"] != "ALL":
+        doc_to_fv = {}
+        doc_to_label = {}
+        for i in range(len(labels)):
+            doc_to_fv[doc_ids[i]] = fv_array[i]
+            doc_to_label[doc_ids[i]] = labels[i]
         one_doc_set = []
         zero_doc_set = []
         one_fv_set = []
@@ -50,11 +55,11 @@ if __name__ == "__main__":
             if labels[i]:
                 one_doc_set.append(doc_ids[i])
                 one_fv_set.append(fv_array[i])
-                one_tuples.append((fv_array[i], doc_ids[i]))
+                one_tuples.append((labels[i], fv_array[i], doc_ids[i]))
             else:
                 zero_doc_set.append(doc_ids[i])
                 zero_fv_set.append(fv_array[i])
-                zero_tuples.append((fv_array[i], doc_ids[i]))
+                zero_tuples.append((labels[i], fv_array[i], doc_ids[i]))
         # do nothing if the doc_count is a multiplier and requested size greater than total zeroes
         if arguments["training_doc_count"].startswith("x"):
             if int(arguments["training_doc_count"][1:]) * len(one_tuples) >= len(zero_tuples):
@@ -78,9 +83,9 @@ if __name__ == "__main__":
             shuffle_size = floor(shuffle_size)
             zero_tuples = zero_tuples[:shuffle_size]
             # Reassign labels in ordered sequence and assign fvs and doc ids while maintaining pairings
-            labels = [1 for i in range(len(one_tuples))] + [0 for i in range(len(zero_tuples))]
-            fv_array = [item[0] for item in chain(one_tuples, zero_tuples)]
-            doc_ids = [item[1] for item in chain(one_tuples, zero_tuples)]
+            doc_ids = [item[2] for item in chain(one_tuples, zero_tuples)]
+            fv_array = [doc_to_fv[doc_id] for doc_id in doc_ids]
+            labels = [doc_to_label[doc_id] for doc_id in doc_ids]
             for i in range(len(labels)):
                 if labels[i]:
                     if fv_array[i] not in one_fv_set or doc_ids[i] not in one_doc_set:
