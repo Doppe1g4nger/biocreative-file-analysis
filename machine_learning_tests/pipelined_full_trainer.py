@@ -147,8 +147,8 @@ if __name__ == "__main__":
     elif arguments["classifier"] == "LSVM":
         clf = LinearSVC()
         parameters.update({
-            "clf__penalty": ["l1"],
-            "clf__loss": ["squared_hinge"],
+            "clf__penalty": ["l2"],
+            "clf__loss": ["hinge"],
             "clf__fit_intercept": [False],
             "clf__C": [1.0],
             # makes dual True if num samples is lequal to num features, false otherwise

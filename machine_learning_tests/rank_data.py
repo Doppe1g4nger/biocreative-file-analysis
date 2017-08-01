@@ -35,7 +35,7 @@ if __name__ == "__main__":
         open(helpers.replace_pathvar_with_environ("$STORE/kinase_canonical_to_nxtprot_id.pkl"), "rb")
     )
     classifier, transformer = joblib.load(arguments["classifier_path"])
-    print(classifier, transformer)
+    print(classifier, transformer, flush=True)
     with open(arguments["out_path"], "w") as outfile:
         in_dict = pickle.load(open(arguments["possible_matches"], "rb"))
         kin_count = 0
