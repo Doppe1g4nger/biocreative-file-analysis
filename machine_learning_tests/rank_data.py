@@ -19,6 +19,7 @@ def docprop_ranking(param_tup):
     clf = param_tup[2]
     print(doc_features)
     features = transf.transform(np.array(doc_features))
+    features = features.reshape(1, -1)
     print(features)
     if clf.predict(features)[0] == 1:
         print("!!!", flush=True)
@@ -108,6 +109,10 @@ if __name__ == "__main__":
                 print(values[:5], flush=True)
                 doc_set = [(value[0], value[1:]) for value in values]
                 print(doc_set[:5], flush=True)
+                fvs = [x[1] for x in values]
+                fvs = transformer.transform(np.array(fvs))
+                print(classifier.predict(fvs))
+                print(classifier.predict_proba(fvs))
                 with Pool() as p:
                     result = p.map(docprop_ranking, [(val, transformer, classifier) for val in doc_set])
                     print(result[:5], flush=True)

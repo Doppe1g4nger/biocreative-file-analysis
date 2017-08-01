@@ -34,7 +34,7 @@ if __name__ == "__main__":
     labels, fv_array, doc_ids = pickle.load(open(arguments["feature_vector"], "rb"))
     test_dict = {}
     for i in range(len(labels)):
-        test_dict[labels[i]] = fv_array[i]
+        test_dict[doc_ids[i]] = fv_array[i]
     print([len(x) for x in (labels, fv_array, doc_ids)], flush=True)
     print(labels[:5], fv_array[:5], doc_ids[:5], sep="\n")
     # If ini specifies to use less than all documents, take a random sample of the zero terms
@@ -76,7 +76,7 @@ if __name__ == "__main__":
             fv_array = [item[0] for item in chain(one_tuples, zero_tuples)]
             doc_ids = [item[1] for item in chain(one_tuples, zero_tuples)]
             for i in range(len(labels)):
-                if test_dict[labels[i]] != fv_array[i]:
+                if test_dict[doc_ids[i]] != fv_array[i]:
                     raise ValueError("Ya done messed up")
             # print(len(zero_tuples), zero_tuples[:5])
             # print(len(one_tuples), one_tuples[:5])
