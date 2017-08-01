@@ -123,7 +123,7 @@ if __name__ == "__main__":
                 print(result[:5], flush=True)
                 count = 0
                 for item in result:
-                    if count == 30:
+                    if count == 100:
                         break
                     count += 1
                     outfile.write(

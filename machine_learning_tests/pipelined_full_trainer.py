@@ -97,7 +97,8 @@ if __name__ == "__main__":
             stop_words="english",
             max_df=0.85,
             norm="l1",
-            sublinear_tf=True
+            sublinear_tf=True,
+            max_features=100000
         )
         features = transf.fit_transform([arguments["document_path"] + idx + ".txt" for idx in doc_ids])
         print(str((default_timer() - start) / 60), flush=True)
@@ -130,9 +131,9 @@ if __name__ == "__main__":
                 # "clf__C": [1.0],
                 "clf__degree": [3],
                 "clf__class_weight": ["balanced"],
-                "clf__C": [0.01, 0.1, 1.0, 10.0, 100.0],
+                "clf__C": [1.0],
                 # "clf__degree": [1, 2, 3],
-                "clf__kernel": ["rbf", "poly"],
+                "clf__kernel": ["rbf"],
                 # "clf__class_weight": ["balanced", None],
         })
     elif arguments["classifier"] == "MNNB":
@@ -153,13 +154,13 @@ if __name__ == "__main__":
     elif arguments["classifier"] == "LSVM":
         clf = LinearSVC()
         parameters.update({
-            "clf__penalty": ["l1", "l2"],
-            "clf__loss": ["hinge", "squared_hinge"],
-            "clf__fit_intercept": [True, False],
-            "clf__C": [0.01, 0.1, 1.0, 10.0, 100.0],
+            "clf__penalty": ["l1"],
+            "clf__loss": ["hinge"],
+            "clf__fit_intercept": [False],
+            "clf__C": [1.0],
             # makes dual True if num samples is lequal to num features, false otherwise
             "clf__dual": [features.shape[0] <= features.shape[1]],
-            "clf__class_weight": ["balanced", None],
+            "clf__class_weight": ["balanced"],
         })
     else:
         raise ValueError("unsupported classifier argument given")
