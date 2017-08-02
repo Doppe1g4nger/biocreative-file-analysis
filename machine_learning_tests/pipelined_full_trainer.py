@@ -121,7 +121,6 @@ if __name__ == "__main__":
         parameters.update({
                 "clf__coef0": [0.5],
                 "clf__cache_size": [10000],
-                # "clf__C": [1.0],
                 "clf__degree": [3],
                 "clf__class_weight": ["balanced"],
                 "clf__C": [1.0],
