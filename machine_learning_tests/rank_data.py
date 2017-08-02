@@ -75,4 +75,4 @@ if __name__ == "__main__":
                     )
                 )
             if not kin_count % 10:
-                print(count, flush=True)
+                print(kin_count, flush=True)
