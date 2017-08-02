@@ -22,7 +22,7 @@ except ModuleNotFoundError:
     import helper_functions as helpers
 
 if __name__ == "__main__":
-    max_feats = 100000
+    max_feats = 10000
     # Read in ini formatted config file passed as command line argument, replace path shortening variables
     config = configparser.ConfigParser()
     config.read(sys.argv[1])
@@ -120,7 +120,7 @@ if __name__ == "__main__":
         clf = SVC()
         parameters.update({
                 "clf__coef0": [0.5],
-                "clf__cache_size": [5000],
+                "clf__cache_size": [10000],
                 # "clf__C": [1.0],
                 "clf__degree": [3],
                 "clf__class_weight": ["balanced"],
