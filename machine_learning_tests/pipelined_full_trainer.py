@@ -180,7 +180,7 @@ if __name__ == "__main__":
         y=labels,
         cv=outer_cv,
         scoring="roc_auc",
-        n_jobs=-1,
+        n_jobs=1,
     )
     print(grid_search, grid_search.best_estimator_, sep="\n")
     print(str((default_timer() - start) / 60))
