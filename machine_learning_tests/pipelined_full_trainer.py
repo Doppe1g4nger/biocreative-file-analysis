@@ -22,20 +22,17 @@ except ModuleNotFoundError:
     import helper_functions as helpers
 
 if __name__ == "__main__":
-    max_feats = 100000
+    max_feats = 10000
     # Read in ini formatted config file passed as command line argument, replace path shortening variables
     config = configparser.ConfigParser()
     config.read(sys.argv[1])
     arguments = config[sys.argv[2]]
     print(sys.argv[2])
-    pre_dispath = 10
+    pre_dispath = 1
     for key in arguments:
         arguments[key] = helpers.replace_pathvar_with_environ(arguments[key])
     # Extract triple of arrays from pickled docs, use doc_id for bag of words, fv_array for doc_prop vector    
     labels, fv_array, doc_ids = pickle.load(open(arguments["feature_vector"], "rb"))
-    test_dict = {}
-    for i in range(len(labels)):
-        test_dict[doc_ids[i]] = fv_array[i]
     print([len(x) for x in (labels, fv_array, doc_ids)], flush=True)
     print(labels[:5], fv_array[:5], doc_ids[:5], sep="\n", flush=True)
     # If ini specifies to use less than all documents, take a random sample of the zero terms
@@ -47,9 +44,9 @@ if __name__ == "__main__":
         # Split fvs and doc ids by label
         for i in range(len(labels)):
             if labels[i]:
-                one_tuples.append((fv_array[i], doc_ids[i]))
+                one_tuples.append((labels[i], fv_array[i], doc_ids[i]))
             else:
-                zero_tuples.append((fv_array[i], doc_ids[i]))
+                zero_tuples.append((labels[i], fv_array[i], doc_ids[i]))
         # do nothing if the doc_count is a multiplier and requested size greater than total zeroes
         if arguments["training_doc_count"].startswith("x"):
             if int(arguments["training_doc_count"][1:]) * len(one_tuples) >= len(zero_tuples):
@@ -73,12 +70,9 @@ if __name__ == "__main__":
             shuffle_size = floor(shuffle_size)
             zero_tuples = zero_tuples[:shuffle_size]
             # Reassign labels in ordered sequence and assign fvs and doc ids while maintaining pairings
-            labels = [1 for i in range(len(one_tuples))] + [0 for i in range(len(zero_tuples))]
-            fv_array = [item[0] for item in chain(one_tuples, zero_tuples)]
-            doc_ids = [item[1] for item in chain(one_tuples, zero_tuples)]
-            for i in range(len(labels)):
-                if test_dict[doc_ids[i]] != fv_array[i]:
-                    raise ValueError("Ya done messed up")
+            labels = [item[0] for item in chain(one_tuples, zero_tuples)]
+            fv_array = [item[1] for item in chain(one_tuples, zero_tuples)]
+            doc_ids = [item[2] for item in chain(one_tuples, zero_tuples)]
             # print(len(zero_tuples), zero_tuples[:5])
             # print(len(one_tuples), one_tuples[:5])
             # print(labels)
@@ -126,8 +120,7 @@ if __name__ == "__main__":
         clf = SVC()
         parameters.update({
                 "clf__coef0": [0.5],
-                "clf__cache_size": [5000],
-                # "clf__C": [1.0],
+                "clf__cache_size": [10000],
                 "clf__degree": [3],
                 "clf__class_weight": ["balanced"],
                 "clf__C": [1.0],
@@ -153,13 +146,13 @@ if __name__ == "__main__":
     elif arguments["classifier"] == "LSVM":
         clf = LinearSVC()
         parameters.update({
-            "clf__penalty": ["l1"],
-            "clf__loss": ["hinge"],
-            "clf__fit_intercept": [False],
-            "clf__C": [1.0],
+            "clf__penalty": ["l1", "l2"],
+            "clf__loss": ["hinge", "squared_hinge"],
+            "clf__fit_intercept": [False, True],
+            "clf__C": [0.01, 0.1, 1.0, 10.0, 100.0],
             # makes dual True if num samples is lequal to num features, false otherwise
             "clf__dual": [features.shape[0] <= features.shape[1]],
-            "clf__class_weight": ["balanced"],
+            "clf__class_weight": ["balanced", None],
         })
     else:
         raise ValueError("unsupported classifier argument given")
@@ -187,7 +180,7 @@ if __name__ == "__main__":
         y=labels,
         cv=outer_cv,
         scoring="roc_auc",
-        n_jobs=-1,
+        n_jobs=1,
     )
     print(grid_search, grid_search.best_estimator_, sep="\n")
     print(str((default_timer() - start) / 60))

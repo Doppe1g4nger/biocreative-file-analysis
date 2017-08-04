@@ -28,23 +28,24 @@ if __name__ == "__main__":
     config = configparser.ConfigParser()
     config.read(sys.argv[1])
     arguments = config[sys.argv[2]]
-    print(sys.argv[2])
+    print(sys.argv[2], flush=True)
     for key in arguments:
         arguments[key] = helpers.replace_pathvar_with_environ(arguments[key])
     canon_to_id = pickle.load(
         open(helpers.replace_pathvar_with_environ("$STORE/kinase_canonical_to_nxtprot_id.pkl"), "rb")
     )
     classifier, transformer = joblib.load(arguments["classifier_path"])
-    print(classifier, transformer)
+    print(classifier, transformer, flush=True)
     with open(arguments["out_path"], "w") as outfile:
         in_dict = pickle.load(open(arguments["possible_matches"], "rb"))
+        kin_count = 0
         for kinase, fvs in in_dict.items():
+            kin_count += 1
             if arguments["training_method"] == "BOW":
                 features = transformer.transform(
                     [arguments["document_path"] + doc_id + ".txt" for doc_id in fvs]
                 )
                 doc_ids = fvs.copy()
-                print(doc_ids, features, sep="\n", flush=True)
             else:
                 doc_ids = [value[0] for value in fvs]
                 features = [value[1:] for value in fvs]
@@ -73,5 +74,5 @@ if __name__ == "__main__":
                         ]
                     )
                 )
-                if not count % 10:
-                    print(count)
+            if not kin_count % 10:
+                print(kin_count, flush=True)
