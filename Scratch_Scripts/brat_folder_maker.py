@@ -4,11 +4,11 @@ import helper_functions as helpers
 
 if __name__ == "__main__":
     # Change these to work on different axis/tasks
-    AXIS = "DIS"
+    AXIS = "BP"
     TASK = "Task1"
-    RUN = "Run0"
+    RUN = "Run1"
     FILEDIR = "/mnt/lustrefs/store/ddopp/CM_input/Abst/Abst_BandT/"
-    MLRANKSPATH = '/mnt/lustrefs/store/ddopp/ML_Ranking_Output/Run0/abstract_disease.txt'
+    MLRANKSPATH = '/mnt/lustrefs/store/ddopp/ML_Ranking_Output/run1_BP_abstracts.txt'
 
     with open(helpers.replace_pathvar_with_environ("$STORE/kinase_canonical_to_nxtprot_id.pkl"), "rb") as f:
         canon_to_nxt = pickle.load(f)
