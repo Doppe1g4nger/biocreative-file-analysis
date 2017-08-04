@@ -6,9 +6,9 @@ if __name__ == "__main__":
     # Change these to work on different axis/tasks
     AXIS = "BP"
     TASK = "Task2"
-    RUN = "Run20"
+    RUN = "Run13"
     FILEDIR = "/mnt/lustrefs/store/ddopp/CM_input/FullText/FullTexts_All/"
-    MLRANKSPATH = '/mnt/lustrefs/store/ddopp/ML_Ranking_Output/run20_BP_fulltexts.txt'
+    MLRANKSPATH = '/mnt/lustrefs/store/ddopp/ML_Ranking_Output/run13_BP_fulltexts.txt'
 
     with open(helpers.replace_pathvar_with_environ("$STORE/kinase_canonical_to_nxtprot_id.pkl"), "rb") as f:
         canon_to_nxt = pickle.load(f)
