@@ -7,7 +7,7 @@ if __name__ == "__main__":
     AXIS = "BP"
     TASK = "Task1"
     RUN = "Run5"
-    FILEDIR = "/mnt/lustrefs/store/ddopp/CM_input/FullText/FullTexts_All/"
+    FILEDIR = "/mnt/lustrefs/store/ddopp/CM_input/Abst/Abst_BandT/"
     MLRANKSPATH = '/mnt/lustrefs/store/ddopp/ML_Ranking_Output/run5_BP_abstracts.txt'
 
     with open(helpers.replace_pathvar_with_environ("$STORE/kinase_canonical_to_nxtprot_id.pkl"), "rb") as f:
